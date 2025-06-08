@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Users,
   Calendar,
@@ -14,38 +14,42 @@ import {
   Shield,
   Clock,
   MessageCircle,
-} from "lucide-react"
-import Link from "next/link"
-import { Navbar } from "@/components/layout/navbar"
-import { Footer } from "@/components/layout/footer"
-import useAuthStore from "@/store/auth.store"
+} from "lucide-react";
+import Link from "next/link";
+import { Navbar } from "@/components/layout/navbar";
+import { Footer } from "@/components/layout/footer";
+import useAuthStore from "@/store/auth.store";
 
 const features = [
   {
     icon: Users,
     title: "Anonymous Forums",
-    description: "Share your thoughts and connect with peers in a safe, judgment-free environment.",
+    description:
+      "Share your thoughts and connect with peers in a safe, judgment-free environment.",
     color: "bg-purple-100 text-purple-600",
   },
   {
     icon: Calendar,
     title: "Peer Listener Sessions",
-    description: "Book one-on-one sessions with trained student listeners who understand your journey.",
+    description:
+      "Book one-on-one sessions with trained student listeners who understand your journey.",
     color: "bg-blue-100 text-blue-600",
   },
   {
     icon: BookOpen,
     title: "Self-Help Library",
-    description: "Access curated resources, articles, and tools for mental wellness and academic success.",
+    description:
+      "Access curated resources, articles, and tools for mental wellness and academic success.",
     color: "bg-green-100 text-green-600",
   },
   {
     icon: Smile,
     title: "Mood Tracker & Journal",
-    description: "Track your emotional journey and reflect through private journaling features.",
+    description:
+      "Track your emotional journey and reflect through private journaling features.",
     color: "bg-orange-100 text-orange-600",
   },
-]
+];
 
 const testimonials = [
   {
@@ -56,42 +60,44 @@ const testimonials = [
     avatar: "🌸",
     rating: 5,
   },
-  {
-    id: 2,
-    text: "The peer listeners are amazing. Finally, someone who understands the pressure we face as students.",
-    author: "Anonymous Student",
-    course: "Medical, 2nd Year",
-    avatar: "🌟",
-    rating: 5,
-  },
-  {
-    id: 3,
-    text: "I love how private and safe this platform feels. It's exactly what Indian students needed.",
-    author: "Anonymous Student",
-    course: "Commerce, Final Year",
-    avatar: "🦋",
-    rating: 5,
-  },
-]
+  // {
+  //   id: 2,
+  //   text: "The peer listeners are amazing. Finally, someone who understands the pressure we face as students.",
+  //   author: "Anonymous Student",
+  //   course: "Medical, 2nd Year",
+  //   avatar: "🌟",
+  //   rating: 5,
+  // },
+  // {
+  //   id: 3,
+  //   text: "I love how private and safe this platform feels. It's exactly what Indian students needed.",
+  //   author: "Anonymous Student",
+  //   course: "Commerce, Final Year",
+  //   avatar: "🦋",
+  //   rating: 5,
+  // },
+];
 
 export default function HomePage() {
-  const [currentTestimonial, setCurrentTestimonial] = useState(0)
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)
-    }, 5000)
-    return () => clearInterval(timer)
-  }, [])
+      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   const nextTestimonial = () => {
-    setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)
-  }
+    setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+  };
 
   const prevTestimonial = () => {
-    setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)
-  }
-  const token = useAuthStore((state)=>state.token)
+    setCurrentTestimonial(
+      (prev) => (prev - 1 + testimonials.length) % testimonials.length
+    );
+  };
+  const token = useAuthStore((state) => state.token);
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
       <Navbar />
@@ -158,7 +164,7 @@ export default function HomePage() {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-8 max-w-md mx-auto pt-8">
+            {/* <div className="grid grid-cols-3 gap-8 max-w-md mx-auto pt-8">
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600">500+</div>
                 <div className="text-sm text-gray-600">Students Helped</div>
@@ -171,7 +177,7 @@ export default function HomePage() {
                 <div className="text-2xl font-bold text-green-600">24/7</div>
                 <div className="text-sm text-gray-600">Support</div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </section>
@@ -184,27 +190,34 @@ export default function HomePage() {
               Everything you need for your mental wellness
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Comprehensive support designed specifically for Indian university students
+              Comprehensive support designed specifically for Indian university
+              students
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => {
-              const IconComponent = feature.icon
+              const IconComponent = feature.icon;
               return (
                 <Card
                   key={index}
                   className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-white/80 backdrop-blur-sm"
                 >
                   <CardContent className="p-6 text-center space-y-4">
-                    <div className={`w-16 h-16 rounded-full ${feature.color} flex items-center justify-center mx-auto`}>
+                    <div
+                      className={`w-16 h-16 rounded-full ${feature.color} flex items-center justify-center mx-auto`}
+                    >
                       <IconComponent className="w-8 h-8" />
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900">{feature.title}</h3>
-                    <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                    <h3 className="text-xl font-semibold text-gray-900">
+                      {feature.title}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      {feature.description}
+                    </p>
                   </CardContent>
                 </Card>
-              )
+              );
             })}
           </div>
         </div>
@@ -214,8 +227,12 @@ export default function HomePage() {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-4 mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">What students are saying</h2>
-            <p className="text-xl text-gray-600">Real experiences from our community members</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
+              What students are saying
+            </h2>
+            <p className="text-xl text-gray-600">
+              Real experiences from our community members
+            </p>
           </div>
 
           <div className="relative max-w-4xl mx-auto">
@@ -224,9 +241,14 @@ export default function HomePage() {
                 <div className="text-center space-y-6">
                   {/* Stars */}
                   <div className="flex justify-center gap-1">
-                    {[...Array(testimonials[currentTestimonial].rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                    ))}
+                    {[...Array(testimonials[currentTestimonial].rating)].map(
+                      (_, i) => (
+                        <Star
+                          key={i}
+                          className="w-5 h-5 text-yellow-400 fill-current"
+                        />
+                      )
+                    )}
                   </div>
 
                   {/* Quote */}
@@ -240,8 +262,12 @@ export default function HomePage() {
                       {testimonials[currentTestimonial].avatar}
                     </div>
                     <div className="text-left">
-                      <div className="font-semibold text-gray-900">{testimonials[currentTestimonial].author}</div>
-                      <div className="text-gray-600">{testimonials[currentTestimonial].course}</div>
+                      <div className="font-semibold text-gray-900">
+                        {testimonials[currentTestimonial].author}
+                      </div>
+                      <div className="text-gray-600">
+                        {testimonials[currentTestimonial].course}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -265,7 +291,9 @@ export default function HomePage() {
                     key={index}
                     onClick={() => setCurrentTestimonial(index)}
                     className={`w-3 h-3 rounded-full transition-colors ${
-                      index === currentTestimonial ? "bg-purple-600" : "bg-gray-300"
+                      index === currentTestimonial
+                        ? "bg-purple-600"
+                        : "bg-gray-300"
                     }`}
                   />
                 ))}
@@ -293,8 +321,8 @@ export default function HomePage() {
                 "Mental health is not a destination, but a process."
               </h2>
               <p className="text-xl text-purple-100 max-w-2xl mx-auto">
-                Take the first step towards better mental wellness. Join thousands of students who have found their
-                support system.
+                Take the first step towards better mental wellness. Join
+                thousands of students who have found their support system.
               </p>
             </div>
 
@@ -327,5 +355,5 @@ export default function HomePage() {
 
       <Footer />
     </div>
-  )
+  );
 }
