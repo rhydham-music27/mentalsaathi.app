@@ -20,8 +20,10 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import useAuthStore from "@/store/auth.store";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const router = useRouter()
   const token = useAuthStore((state) => state.token);
   const setToken = useAuthStore((state) => state.setToken);
   const clearToken = useAuthStore((state) => state.clearToken);
@@ -63,7 +65,8 @@ export default function LoginPage() {
       toast.success(res.message);
       setToken(res.token);
       setMail(res.email)
-      console.log(res);
+      router.push('/')
+      // console.log(res);
     }
   };
 
