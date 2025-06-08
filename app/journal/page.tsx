@@ -215,7 +215,7 @@ export default function JournalPage() {
                           Authorization: `Bearer ${token}`,
                         },
                         body: JSON.stringify({
-                          preview: journalEntry,
+                          preview: journalEntry.split('.')[0],
                           content: journalEntry,
                           mood: "😊",
                         }),

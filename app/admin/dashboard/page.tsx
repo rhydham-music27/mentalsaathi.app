@@ -94,6 +94,25 @@ const pendingReviews = [
 export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
+  const [dashboardData, setDashboardData] = useState({
+    totalUser: "",
+    activeUser: "",
+  });
+  const getDashboardData = async () => {
+    const response = await fetch(
+      "https://mentalsaathi-express-backend.onrender.com/api/v1/admin/get-important"
+    );
+    const res = await response.json();
+    console.log(res);
+    setDashboardData((prev) => ({
+      ...prev,
+      totalUser: res.totalUser,
+      activeUser: res.active,
+    }));
+  };
+  useEffect(() => {
+    getDashboardData();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -131,10 +150,10 @@ export default function AdminDashboard() {
                       Total Users
                     </p>
                     <p className="text-3xl font-bold text-gray-900">
-                      {dashboardStats.totalUsers.toLocaleString()}
+                      {dashboardData.totalUser}
                     </p>
                     <p className="text-sm text-green-600">
-                      +{dashboardStats.newUsersThisWeek} this week
+                      +{0} this week
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
@@ -152,12 +171,12 @@ export default function AdminDashboard() {
                       Active Users
                     </p>
                     <p className="text-3xl font-bold text-gray-900">
-                      {dashboardStats.activeUsers.toLocaleString()}
+                      {dashboardData.activeUser}
                     </p>
                     <p className="text-sm text-green-600">
                       {Math.round(
-                        (dashboardStats.activeUsers /
-                          dashboardStats.totalUsers) *
+                        ((+dashboardData.activeUser) /
+                          (+dashboardData.totalUser)) *
                           100
                       )}
                       % engagement
@@ -170,7 +189,7 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
 
-            <Card className="border-purple-100 shadow-sm">
+            {/* <Card className="border-purple-100 shadow-sm">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -210,7 +229,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
