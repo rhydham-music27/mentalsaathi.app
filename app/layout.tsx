@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
-import useAuthStore from "@/store/auth.store";
 import Head from "next/head";
 const inter = Inter({ subsets: ["latin"] });
 
