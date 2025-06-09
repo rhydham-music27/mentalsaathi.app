@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://mentalsaathi.in
+
+# Sitemaps
+Sitemap: https://mentalsaathi.in/sitemap.xml
