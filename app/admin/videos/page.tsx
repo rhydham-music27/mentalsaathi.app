@@ -1,14 +1,26 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { AdminSidebar } from "@/components/admin/admin-sidebar"
-import { Video, Search, Filter, Plus, Edit, Trash2, Eye, Clock, TrendingUp, MoreHorizontal } from "lucide-react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import {
+  Video,
+  Search,
+  Filter,
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+  Clock,
+  TrendingUp,
+  MoreHorizontal,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import useAdminAuthStore from "@/store/admin.auth.store";
 
 // Mock video data
 const mockVideos = [
@@ -72,27 +84,50 @@ const mockVideos = [
     uploadDate: "2024-01-08",
     thumbnail: "/placeholder.svg?height=120&width=200",
   },
-]
+];
 
-const categories = ["All", "Anxiety", "Sleep", "Motivation", "Relationships", "Academic"]
-const statuses = ["All", "Published", "Draft", "Pending", "Archived"]
+const categories = [
+  "All",
+  "Anxiety",
+  "Sleep",
+  "Motivation",
+  "Relationships",
+  "Academic",
+];
+const statuses = ["All", "Published", "Draft", "Pending", "Archived"];
 
 export default function VideoManagementPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [videos, setVideos] = useState(mockVideos)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("All")
-  const [selectedStatus, setSelectedStatus] = useState("All")
-  const router = useRouter()
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [videos, setVideos] = useState(mockVideos);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedStatus, setSelectedStatus] = useState("All");
+  const router = useRouter();
 
-  useEffect(() => {
-    const adminAuth = localStorage.getItem("adminAuth")
-    if (adminAuth === "true") {
-      setIsAuthenticated(true)
+  const token = useAdminAuthStore((state) => {
+    return state.token;
+  });
+  const getDashboardData = async () => {
+    const response = await fetch(
+      "https://mentalsaathi-express-backend.onrender.com/api/v1/admin/get-important",
+      {
+        method: "get",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    const res = await response.json();
+    console.log(res);
+    if (res.success === false) {
+      router.push("/admin/login");
     } else {
-      router.push("/admin/login")
+      setIsAuthenticated(true);
     }
-  }, [router])
+  };
+  useEffect(() => {
+    getDashboardData();
+  }, []);
 
   if (!isAuthenticated) {
     return (
@@ -102,42 +137,48 @@ export default function VideoManagementPage() {
           <p className="text-gray-600">Checking authentication...</p>
         </div>
       </div>
-    )
+    );
   }
 
   const filteredVideos = videos.filter((video) => {
     const matchesSearch =
       video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      video.instructor.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = selectedCategory === "All" || video.category === selectedCategory
-    const matchesStatus = selectedStatus === "All" || video.status === selectedStatus.toLowerCase()
-    return matchesSearch && matchesCategory && matchesStatus
-  })
+      video.instructor.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "All" || video.category === selectedCategory;
+    const matchesStatus =
+      selectedStatus === "All" || video.status === selectedStatus.toLowerCase();
+    return matchesSearch && matchesCategory && matchesStatus;
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "published":
-        return "bg-green-100 text-green-700"
+        return "bg-green-100 text-green-700";
       case "draft":
-        return "bg-yellow-100 text-yellow-700"
+        return "bg-yellow-100 text-yellow-700";
       case "pending":
-        return "bg-blue-100 text-blue-700"
+        return "bg-blue-100 text-blue-700";
       case "archived":
-        return "bg-gray-100 text-gray-700"
+        return "bg-gray-100 text-gray-700";
       default:
-        return "bg-gray-100 text-gray-700"
+        return "bg-gray-100 text-gray-700";
     }
-  }
+  };
 
   const handleDeleteVideo = (videoId: number) => {
     if (confirm("Are you sure you want to delete this video?")) {
-      setVideos(videos.filter((video) => video.id !== videoId))
+      setVideos(videos.filter((video) => video.id !== videoId));
     }
-  }
+  };
 
   const handleStatusChange = (videoId: number, newStatus: string) => {
-    setVideos(videos.map((video) => (video.id === videoId ? { ...video, status: newStatus } : video)))
-  }
+    setVideos(
+      videos.map((video) =>
+        video.id === videoId ? { ...video, status: newStatus } : video
+      )
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -171,8 +212,12 @@ export default function VideoManagementPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Total Videos</p>
-                    <p className="text-3xl font-bold text-gray-900">{videos.length}</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Total Videos
+                    </p>
+                    <p className="text-3xl font-bold text-gray-900">
+                      {videos.length}
+                    </p>
                   </div>
                   <Video className="w-8 h-8 text-blue-600" />
                 </div>
@@ -183,7 +228,9 @@ export default function VideoManagementPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Published</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Published
+                    </p>
                     <p className="text-3xl font-bold text-gray-900">
                       {videos.filter((v) => v.status === "published").length}
                     </p>
@@ -197,9 +244,13 @@ export default function VideoManagementPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Total Views</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Total Views
+                    </p>
                     <p className="text-3xl font-bold text-gray-900">
-                      {videos.reduce((sum, video) => sum + video.views, 0).toLocaleString()}
+                      {videos
+                        .reduce((sum, video) => sum + video.views, 0)
+                        .toLocaleString()}
                     </p>
                   </div>
                   <TrendingUp className="w-8 h-8 text-yellow-600" />
@@ -211,7 +262,9 @@ export default function VideoManagementPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Pending Review</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Pending Review
+                    </p>
                     <p className="text-3xl font-bold text-gray-900">
                       {videos.filter((v) => v.status === "pending").length}
                     </p>
@@ -288,7 +341,9 @@ export default function VideoManagementPage() {
                     />
 
                     <div className="flex-1 space-y-1">
-                      <h3 className="font-semibold text-gray-900">{video.title}</h3>
+                      <h3 className="font-semibold text-gray-900">
+                        {video.title}
+                      </h3>
                       <div className="flex items-center gap-4 text-sm text-gray-600">
                         <span>by {video.instructor}</span>
                         <span className="flex items-center gap-1">
@@ -301,20 +356,33 @@ export default function VideoManagementPage() {
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="bg-purple-50 text-purple-700">
+                        <Badge
+                          variant="outline"
+                          className="bg-purple-50 text-purple-700"
+                        >
                           {video.category}
                         </Badge>
-                        <Badge className={getStatusColor(video.status)}>{video.status}</Badge>
+                        <Badge className={getStatusColor(video.status)}>
+                          {video.status}
+                        </Badge>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2">
                       <Link href={`/video/${video.id}`}>
-                        <Button variant="outline" size="sm" className="rounded-full">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="rounded-full"
+                        >
                           <Eye className="w-4 h-4" />
                         </Button>
                       </Link>
-                      <Button variant="outline" size="sm" className="rounded-full">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full"
+                      >
                         <Edit className="w-4 h-4" />
                       </Button>
                       <Button
@@ -325,7 +393,11 @@ export default function VideoManagementPage() {
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
-                      <Button variant="outline" size="sm" className="rounded-full">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full"
+                      >
                         <MoreHorizontal className="w-4 h-4" />
                       </Button>
                     </div>
@@ -335,13 +407,17 @@ export default function VideoManagementPage() {
                 {filteredVideos.length === 0 && (
                   <div className="text-center py-12">
                     <Video className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No videos found</h3>
-                    <p className="text-gray-600 mb-4">Try adjusting your search or filter criteria.</p>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      No videos found
+                    </h3>
+                    <p className="text-gray-600 mb-4">
+                      Try adjusting your search or filter criteria.
+                    </p>
                     <Button
                       onClick={() => {
-                        setSearchQuery("")
-                        setSelectedCategory("All")
-                        setSelectedStatus("All")
+                        setSearchQuery("");
+                        setSelectedCategory("All");
+                        setSelectedStatus("All");
                       }}
                       variant="outline"
                       className="rounded-full"
@@ -356,5 +432,5 @@ export default function VideoManagementPage() {
         </main>
       </div>
     </div>
-  )
+  );
 }

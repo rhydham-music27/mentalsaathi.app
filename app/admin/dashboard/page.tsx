@@ -16,6 +16,7 @@ import {
   Settings,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import useAdminAuthStore from "@/store/admin.auth.store";
 
 // Mock data for dashboard
 const dashboardStats = {
@@ -98,12 +99,24 @@ export default function AdminDashboard() {
     totalUser: "",
     activeUser: "",
   });
+  const token = useAdminAuthStore((state) => {
+    return state.token;
+  });
   const getDashboardData = async () => {
     const response = await fetch(
-      "https://mentalsaathi-express-backend.onrender.com/api/v1/admin/get-important"
+      "https://mentalsaathi-express-backend.onrender.com/api/v1/admin/get-important",
+      {
+        method: "get",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
     const res = await response.json();
     console.log(res);
+    if(res.success===false){
+      router.push('/admin/login')
+    }
     setDashboardData((prev) => ({
       ...prev,
       totalUser: res.totalUser,
@@ -152,9 +165,7 @@ export default function AdminDashboard() {
                     <p className="text-3xl font-bold text-gray-900">
                       {dashboardData.totalUser}
                     </p>
-                    <p className="text-sm text-green-600">
-                      +{0} this week
-                    </p>
+                    <p className="text-sm text-green-600">+{0} this week</p>
                   </div>
                   <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                     <Users className="w-6 h-6 text-blue-600" />
@@ -175,8 +186,7 @@ export default function AdminDashboard() {
                     </p>
                     <p className="text-sm text-green-600">
                       {Math.round(
-                        ((+dashboardData.activeUser) /
-                          (+dashboardData.totalUser)) *
+                        (+dashboardData.activeUser / +dashboardData.totalUser) *
                           100
                       )}
                       % engagement

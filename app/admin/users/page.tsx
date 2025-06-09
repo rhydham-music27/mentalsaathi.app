@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { AdminSidebar } from "@/components/admin/admin-sidebar"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import {
   Users,
   Search,
@@ -19,8 +19,9 @@ import {
   MessageSquare,
   Eye,
   UserCheck,
-} from "lucide-react"
-import { useRouter } from "next/navigation"
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import useAdminAuthStore from "@/store/admin.auth.store";
 
 // Mock user data
 const mockUsers = [
@@ -94,26 +95,42 @@ const mockUsers = [
     course: "Science",
     year: "2nd Year",
   },
-]
+];
 
-const statusFilters = ["All", "Active", "Inactive", "Suspended", "Banned"]
+const statusFilters = ["All", "Active", "Inactive", "Suspended", "Banned"];
 
 export default function UserManagementPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [users, setUsers] = useState(mockUsers)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedStatus, setSelectedStatus] = useState("All")
-  const [selectedUsers, setSelectedUsers] = useState<number[]>([])
-  const router = useRouter()
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [users, setUsers] = useState(mockUsers);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("All");
+  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
+  const router = useRouter();
 
-  useEffect(() => {
-    const adminAuth = localStorage.getItem("adminAuth")
-    if (adminAuth === "true") {
-      setIsAuthenticated(true)
+  const token = useAdminAuthStore((state) => {
+    return state.token;
+  });
+  const getDashboardData = async () => {
+    const response = await fetch(
+      "https://mentalsaathi-express-backend.onrender.com/api/v1/admin/get-important",
+      {
+        method: "get",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    const res = await response.json();
+    console.log(res);
+    if (res.success === false) {
+      router.push("/admin/login");
     } else {
-      router.push("/admin/login")
+      setIsAuthenticated(true);
     }
-  }, [router])
+  };
+  useEffect(() => {
+    getDashboardData();
+  }, []);
 
   if (!isAuthenticated) {
     return (
@@ -123,57 +140,74 @@ export default function UserManagementPage() {
           <p className="text-gray-600">Checking authentication...</p>
         </div>
       </div>
-    )
+    );
   }
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.university.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus = selectedStatus === "All" || user.status === selectedStatus.toLowerCase()
-    return matchesSearch && matchesStatus
-  })
+      user.university.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus =
+      selectedStatus === "All" || user.status === selectedStatus.toLowerCase();
+    return matchesSearch && matchesStatus;
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
-        return "bg-green-100 text-green-700"
+        return "bg-green-100 text-green-700";
       case "inactive":
-        return "bg-gray-100 text-gray-700"
+        return "bg-gray-100 text-gray-700";
       case "suspended":
-        return "bg-yellow-100 text-yellow-700"
+        return "bg-yellow-100 text-yellow-700";
       case "banned":
-        return "bg-red-100 text-red-700"
+        return "bg-red-100 text-red-700";
       default:
-        return "bg-gray-100 text-gray-700"
+        return "bg-gray-100 text-gray-700";
     }
-  }
+  };
 
   const handleStatusChange = (userId: number, newStatus: string) => {
-    setUsers(users.map((user) => (user.id === userId ? { ...user, status: newStatus } : user)))
-  }
+    setUsers(
+      users.map((user) =>
+        user.id === userId ? { ...user, status: newStatus } : user
+      )
+    );
+  };
 
   const handleBulkAction = (action: string) => {
-    if (selectedUsers.length === 0) return
+    if (selectedUsers.length === 0) return;
 
-    if (confirm(`Are you sure you want to ${action} ${selectedUsers.length} user(s)?`)) {
-      setUsers(users.map((user) => (selectedUsers.includes(user.id) ? { ...user, status: action } : user)))
-      setSelectedUsers([])
+    if (
+      confirm(
+        `Are you sure you want to ${action} ${selectedUsers.length} user(s)?`
+      )
+    ) {
+      setUsers(
+        users.map((user) =>
+          selectedUsers.includes(user.id) ? { ...user, status: action } : user
+        )
+      );
+      setSelectedUsers([]);
     }
-  }
+  };
 
   const toggleUserSelection = (userId: number) => {
-    setSelectedUsers((prev) => (prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]))
-  }
+    setSelectedUsers((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
+    );
+  };
 
   const selectAllUsers = () => {
     if (selectedUsers.length === filteredUsers.length) {
-      setSelectedUsers([])
+      setSelectedUsers([]);
     } else {
-      setSelectedUsers(filteredUsers.map((user) => user.id))
+      setSelectedUsers(filteredUsers.map((user) => user.id));
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -188,12 +222,16 @@ export default function UserManagementPage() {
                 <Users className="w-6 h-6 text-purple-600" />
                 User Management
               </h1>
-              <p className="text-gray-600">Manage platform users and their activities</p>
+              <p className="text-gray-600">
+                Manage platform users and their activities
+              </p>
             </div>
             <div className="flex items-center gap-3">
               {selectedUsers.length > 0 && (
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-600">{selectedUsers.length} selected</span>
+                  <span className="text-sm text-gray-600">
+                    {selectedUsers.length} selected
+                  </span>
                   <Button
                     size="sm"
                     variant="outline"
@@ -224,8 +262,12 @@ export default function UserManagementPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Total Users</p>
-                    <p className="text-3xl font-bold text-gray-900">{users.length}</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Total Users
+                    </p>
+                    <p className="text-3xl font-bold text-gray-900">
+                      {users.length}
+                    </p>
                   </div>
                   <Users className="w-8 h-8 text-blue-600" />
                 </div>
@@ -236,7 +278,9 @@ export default function UserManagementPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Active Users</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Active Users
+                    </p>
                     <p className="text-3xl font-bold text-gray-900">
                       {users.filter((u) => u.status === "active").length}
                     </p>
@@ -250,7 +294,9 @@ export default function UserManagementPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Suspended</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Suspended
+                    </p>
                     <p className="text-3xl font-bold text-gray-900">
                       {users.filter((u) => u.status === "suspended").length}
                     </p>
@@ -317,7 +363,10 @@ export default function UserManagementPage() {
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
-                    checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0}
+                    checked={
+                      selectedUsers.length === filteredUsers.length &&
+                      filteredUsers.length > 0
+                    }
                     onChange={selectAllUsers}
                     className="rounded border-gray-300"
                   />
@@ -345,10 +394,17 @@ export default function UserManagementPage() {
 
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-gray-900">{user.username}</h3>
-                        <Badge className={getStatusColor(user.status)}>{user.status}</Badge>
+                        <h3 className="font-semibold text-gray-900">
+                          {user.username}
+                        </h3>
+                        <Badge className={getStatusColor(user.status)}>
+                          {user.status}
+                        </Badge>
                         {user.reportsCount > 0 && (
-                          <Badge variant="outline" className="bg-red-50 text-red-700">
+                          <Badge
+                            variant="outline"
+                            className="bg-red-50 text-red-700"
+                          >
                             {user.reportsCount} reports
                           </Badge>
                         )}
@@ -375,12 +431,19 @@ export default function UserManagementPage() {
                           <Users className="w-3 h-3" />
                           {user.sessionsCount} sessions
                         </span>
-                        <span>Last active: {new Date(user.lastActive).toLocaleDateString()}</span>
+                        <span>
+                          Last active:{" "}
+                          {new Date(user.lastActive).toLocaleDateString()}
+                        </span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" className="rounded-full">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full"
+                      >
                         <Eye className="w-4 h-4" />
                       </Button>
                       {user.status === "active" ? (
@@ -388,7 +451,9 @@ export default function UserManagementPage() {
                           variant="outline"
                           size="sm"
                           className="rounded-full text-yellow-600 hover:bg-yellow-50"
-                          onClick={() => handleStatusChange(user.id, "suspended")}
+                          onClick={() =>
+                            handleStatusChange(user.id, "suspended")
+                          }
                         >
                           <Ban className="w-4 h-4" />
                         </Button>
@@ -402,7 +467,11 @@ export default function UserManagementPage() {
                           <CheckCircle className="w-4 h-4" />
                         </Button>
                       )}
-                      <Button variant="outline" size="sm" className="rounded-full">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full"
+                      >
                         <MoreHorizontal className="w-4 h-4" />
                       </Button>
                     </div>
@@ -412,12 +481,16 @@ export default function UserManagementPage() {
                 {filteredUsers.length === 0 && (
                   <div className="text-center py-12">
                     <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No users found</h3>
-                    <p className="text-gray-600 mb-4">Try adjusting your search or filter criteria.</p>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      No users found
+                    </h3>
+                    <p className="text-gray-600 mb-4">
+                      Try adjusting your search or filter criteria.
+                    </p>
                     <Button
                       onClick={() => {
-                        setSearchQuery("")
-                        setSelectedStatus("All")
+                        setSearchQuery("");
+                        setSelectedStatus("All");
                       }}
                       variant="outline"
                       className="rounded-full"
@@ -432,5 +505,5 @@ export default function UserManagementPage() {
         </main>
       </div>
     </div>
-  )
+  );
 }

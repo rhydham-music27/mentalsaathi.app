@@ -16,6 +16,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  UserPlus,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -25,6 +26,11 @@ const sidebarItems = [
     href: "/admin/dashboard",
     label: "Dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    href: "/admin/add-therapist",
+    label: "Add Therapist",
+    icon: UserPlus,
   },
   {
     href: "/admin/videos",
