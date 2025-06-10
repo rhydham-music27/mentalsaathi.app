@@ -51,7 +51,11 @@ export default function AboutPage() {
     const ping = async () => {
       await fetch(
         "https://mentalsaathi-express-backend.onrender.com/api/v1/admin/ping",
-        { credentials: "include" }
+        { 
+          headers:{
+            'Authorization':`Bearer ${token}`
+          }
+         }
       );
     };
 

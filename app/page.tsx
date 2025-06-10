@@ -118,16 +118,23 @@ export default function HomePage() {
   //   ping();
   // }, []);
 // React (or Next.js) — Call on mount + interval
-useEffect(() => {
-  const ping = async () => {
-    await fetch("https://mentalsaathi-express-backend.onrender.com/api/v1/admin/ping", { credentials: "include" });
-  };
+  useEffect(() => {
+    const ping = async () => {
+      await fetch(
+        "https://mentalsaathi-express-backend.onrender.com/api/v1/admin/ping",
+        { 
+          headers:{
+            'Authorization':`Bearer ${token}`
+          }
+         }
+      );
+    };
 
-  ping();
-  const interval = setInterval(ping, 60000); // every 1 min
+    ping();
+    const interval = setInterval(ping, 60000); // every 1 min
 
-  return () => clearInterval(interval);
-}, []);
+    return () => clearInterval(interval);
+  }, []);
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
       <Navbar />
