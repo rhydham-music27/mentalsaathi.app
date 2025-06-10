@@ -98,26 +98,36 @@ export default function HomePage() {
     );
   };
   const token = useAuthStore((state) => state.token);
+  // const ping = async () => {
+  //   const response = await fetch(
+  //     "https://mentalsaathi-express-backend.onrender.com/api/v1/admin/ping",
+  //     {
+  //       method: "get",
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     }
+  //   );
+  //   try {
+  //     return;
+  //   } catch (error) {
+  //     return;
+  //   }
+  // };
+  // useEffect(() => {
+  //   ping();
+  // }, []);
+// React (or Next.js) — Call on mount + interval
+useEffect(() => {
   const ping = async () => {
-    const response = await fetch(
-      "https://mentalsaathi-express-backend.onrender.com/api/v1/admin/ping",
-      {
-        method: "get",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    try {
-      return;
-    } catch (error) {
-      return;
-    }
+    await fetch("https://mentalsaathi-express-backend.onrender.com/api/v1/admin/ping", { credentials: "include" });
   };
-  useEffect(() => {
-    ping();
-  }, []);
 
+  ping();
+  const interval = setInterval(ping, 60000); // every 1 min
+
+  return () => clearInterval(interval);
+}, []);
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
       <Navbar />

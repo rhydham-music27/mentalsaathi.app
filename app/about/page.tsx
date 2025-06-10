@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
@@ -47,24 +47,18 @@ export default function AboutPage() {
   const token = useAuthStore((state) => {
     return state.token;
   });
-  const ping = async () => {
-    const response = await fetch(
-      "https://mentalsaathi-express-backend.onrender.com/api/v1/admin/ping",
-      {
-        method: "get",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    try {
-      return;
-    } catch (error) {
-      return;
-    }
-  };
   useEffect(() => {
+    const ping = async () => {
+      await fetch(
+        "https://mentalsaathi-express-backend.onrender.com/api/v1/admin/ping",
+        { credentials: "include" }
+      );
+    };
+
     ping();
+    const interval = setInterval(ping, 60000); // every 1 min
+
+    return () => clearInterval(interval);
   }, []);
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">

@@ -30,25 +30,16 @@ export default function CommunityPage() {
     postId: string;
     userMail: string;
   };
-   const ping = async () => {
-    const response = await fetch(
-      "https://mentalsaathi-express-backend.onrender.com/api/v1/admin/ping",
-      {
-        method: "get",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    try {
-      return;
-    } catch (error) {
-      return;
-    }
+useEffect(() => {
+  const ping = async () => {
+    await fetch("https://mentalsaathi-express-backend.onrender.com/api/v1/admin/ping", { credentials: "include" });
   };
-  useEffect(() => {
-    ping();
-  }, []);
+
+  ping();
+  const interval = setInterval(ping, 60000); // every 1 min
+
+  return () => clearInterval(interval);
+}, []);
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showPostForm, setShowPostForm] = useState(false);
