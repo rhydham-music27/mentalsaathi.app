@@ -1,4 +1,6 @@
-import { Analytics } from '@vercel/analytics/react';
+import { Analytics } from "@vercel/analytics/react";
+// import {} from '@vercel/speed-insights';
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -35,7 +37,8 @@ export default function RootLayout({
       <body className={inter.className}>
         <Toaster position="top-right" />
         {children}
-        <Analytics/>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
