@@ -157,6 +157,25 @@ export default function JournalPage() {
         return "bg-blue-100 text-blue-700";
     }
   };
+  const ping = async () => {
+    const response = await fetch(
+      "https://mentalsaathi-express-backend.onrender.com/api/v1/admin/ping",
+      {
+        method: "get",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    try {
+      return;
+    } catch (error) {
+      return;
+    }
+  };
+  useEffect(() => {
+    ping();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
@@ -215,7 +234,7 @@ export default function JournalPage() {
                           Authorization: `Bearer ${token}`,
                         },
                         body: JSON.stringify({
-                          preview: journalEntry.split('.')[0],
+                          preview: journalEntry.split(".")[0],
                           content: journalEntry,
                           mood: "😊",
                         }),
@@ -224,7 +243,7 @@ export default function JournalPage() {
                     const res = await response.json();
                     if (res.success === true) {
                       toast.success(res.message);
-                      getJournalData()
+                      getJournalData();
                     } else {
                       toast.error(res.message);
                     }

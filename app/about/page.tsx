@@ -2,6 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Heart, Target, Eye, Award } from "lucide-react";
+import { useEffect } from "react";
+import useAuthStore from "@/store/auth.store";
 
 const founders = [
   {
@@ -41,6 +43,28 @@ const milestones = [
 ];
 
 export default function AboutPage() {
+  const token = useAuthStore((state) => {
+    return state.token;
+  });
+  const ping = async () => {
+    const response = await fetch(
+      "https://mentalsaathi-express-backend.onrender.com/api/v1/admin/ping",
+      {
+        method: "get",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    try {
+      return;
+    } catch (error) {
+      return;
+    }
+  };
+  useEffect(() => {
+    ping();
+  }, []);
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
       <Navbar />

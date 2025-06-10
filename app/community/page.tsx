@@ -30,6 +30,25 @@ export default function CommunityPage() {
     postId: string;
     userMail: string;
   };
+   const ping = async () => {
+    const response = await fetch(
+      "https://mentalsaathi-express-backend.onrender.com/api/v1/admin/ping",
+      {
+        method: "get",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    try {
+      return;
+    } catch (error) {
+      return;
+    }
+  };
+  useEffect(() => {
+    ping();
+  }, []);
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showPostForm, setShowPostForm] = useState(false);
