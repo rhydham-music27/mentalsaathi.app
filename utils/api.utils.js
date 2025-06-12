@@ -8,3 +8,7 @@ export const postApi = axios.create({
     baseURL:"https://mentalsaathi-express-backend.onrender.com/api/v1/post",
     timeout:10000
 })
+export const toolsApi = axios.create({
+    baseURL:"https://mentalsaathi-express-backend.onrender.com/api/v1/tools",
+    timeout:10000
+})

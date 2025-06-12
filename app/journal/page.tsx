@@ -27,6 +27,7 @@ import {
 import Link from "next/link";
 import useAuthStore from "@/store/auth.store";
 import toast from "react-hot-toast";
+import { toolsApi } from "@/utils/api.utils";
 
 // Mock data for journal entries
 
@@ -102,22 +103,15 @@ export default function JournalPage() {
     return state.hasHydrated;
   });
   const getJournalData = async () => {
-    const response = await fetch(
-      "https://mentalsaathi-express-backend.onrender.com/api/v1/tools/get-journal",
-      {
-        method: "get",
+    toolsApi
+      .get("/get-journal", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
-    );
-    const res = await response.json();
-    console.log(res);
-    console.log(token);
-    if (res.success === true) {
-      setJournalEntries(res.journalData);
-      console.log(res.journalData.length);
-    }
+      })
+      .then((response) => {
+        setJournalEntries(response.data.journalData);
+      });
   };
   useEffect(() => {
     if (hasHydrated && token) {
@@ -161,11 +155,11 @@ export default function JournalPage() {
     const ping = async () => {
       await fetch(
         "https://mentalsaathi-express-backend.onrender.com/api/v1/admin/ping",
-        { 
-          headers:{
-            'Authorization':`Bearer ${token}`
-          }
-         }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
     };
 
@@ -223,28 +217,26 @@ export default function JournalPage() {
                 <Button
                   onClick={async (event) => {
                     event.preventDefault();
-                    const response = await fetch(
-                      "https://mentalsaathi-express-backend.onrender.com/api/v1/tools/journal",
-                      {
-                        method: "post",
-                        headers: {
-                          "Content-type": "application/json",
-                          Authorization: `Bearer ${token}`,
-                        },
-                        body: JSON.stringify({
+                    toolsApi
+                      .post(
+                        "/journal",
+                        {
                           preview: journalEntry.split(".")[0],
                           content: journalEntry,
                           mood: "😊",
-                        }),
-                      }
-                    );
-                    const res = await response.json();
-                    if (res.success === true) {
-                      toast.success(res.message);
-                      getJournalData();
-                    } else {
-                      toast.error(res.message);
-                    }
+                        },
+                        {
+                          headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`,
+                          },
+                        }
+                      )
+                      .then(() => {
+                        getJournalData();
+                      })
+                      .catch((error) => {
+                      });
                   }}
                   // disabled={!journalEntry.trim() || isSaving}
                   className={`w-full rounded-full py-3 font-semibold transition-all duration-300 ${
