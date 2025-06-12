@@ -1,5 +1,5 @@
 "use client";
-
+import { authApi } from "../../utils/api.utils.js";
 import type React from "react";
 
 import { useState } from "react";
@@ -75,58 +75,21 @@ export default function page() {
           <Card className="border-purple-100 shadow-xl bg-white/80 backdrop-blur-sm">
             <CardContent className="p-6">
               <Tabs defaultValue="login" className="w-full">
-                {/* Sign Up Tab */}
-                {/* Full Name
-
-input: Text
-
-✅ Friendly experience, humanized interaction
-
-Email Address
-
-input: Email
-
-🔒 For login, verification, and communication
-
-Password
-
-input: Password
-
-🛡️ Secure with visibility toggle, show requirements
-
-Confirm Password
-
-input: Password
-
-🔁 Validation to match above
-
-Account Type (dropdown or radio)
-
-options: Seeker | Saathi (Volunteer) | Professional (Therapist)
-
-🎭 Defines user journey */}
                 <form
                   onSubmit={async (event) => {
                     event.preventDefault();
-                    const response = await fetch(
-                      "https://mentalsaathi-express-backend.onrender.com/api/v1/auth/signup",
-                      {
-                        method: "post",
+                    authApi
+                      .post("/signup", signupData, {
                         headers: {
                           "Content-type": "application/json",
                         },
-                        body: JSON.stringify({
-                          ...signupData,
-                        }),
-                      }
-                    );
-                    const res = await response.json();
-                    if (res.success === false) {
-                      toast.error(res.message);
-                    }
-                    if (res.success === true) {
-                      toast.success(res.message);
-                    }
+                      })
+                      .then((resposne) => {
+                        toast.success(resposne.data.message);
+                      })
+                      .catch((error) => {
+                        toast.error(error.response.data.message);
+                      });
                   }}
                   className="space-y-4"
                 >

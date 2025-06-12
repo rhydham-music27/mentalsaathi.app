@@ -21,12 +21,14 @@ import {
 import toast from "react-hot-toast";
 import useAuthStore from "@/store/auth.store";
 import { useRouter } from "next/navigation";
+import { authApi } from "@/utils/api.utils";
 
 export default function LoginPage() {
-  const router = useRouter()
-  const token = useAuthStore((state) => state.token);
+  const email = useAuthStore((state) => {
+    return state.email;
+  });
+  const router = useRouter();
   const setToken = useAuthStore((state) => state.setToken);
-  const clearToken = useAuthStore((state) => state.clearToken);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loginData, setLoginData] = useState({ email: "", password: "" });
@@ -44,30 +46,27 @@ export default function LoginPage() {
   const setMail = useAuthStore((state) => {
     return state.setEmail;
   });
+  const token = useAuthStore((state) => {
+    return state.token;
+  });
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     // Simulate login
-    const response = await fetch(
-      "https://mentalsaathi-express-backend.onrender.com/api/v1/auth/login",
-      {
-        method: "post",
+    authApi
+      .post("/login", loginData, {
         headers: {
-          "Content-type": "application/json",
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ...loginData,
-        }),
-      }
-    );
-    const res = await response.json();
-    if (res.success === false) toast.error(res.message);
-    if (res.success === true) {
-      toast.success(res.message);
-      setToken(res.token);
-      setMail(res.email)
-      router.push('/')
-      // console.log(res);
-    }
+      })
+      .then((response) => {
+        toast.success(response.data.message);
+        setToken(response.data.token);
+        setMail(response.data.email);
+        router.push("/community");
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message);
+      });
   };
 
   return (
@@ -175,10 +174,7 @@ export default function LoginPage() {
                     <div className="absolute inset-0 flex items-center">
                       <span className="w-full border-t border-gray-300" />
                     </div>
-                  
                   </div>
-
-             
 
                   <div className="text-center">
                     <button
