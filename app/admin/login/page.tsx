@@ -19,6 +19,7 @@ import {
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import useAdminAuthStore from "@/store/admin.auth.store";
+import { adminApi } from "@/utils/api.utils";
 
 export default function AdminLoginPage() {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
@@ -27,32 +28,27 @@ export default function AdminLoginPage() {
     "idle" | "loading" | "success" | "error"
   >("idle");
   const [errorMessage, setErrorMessage] = useState("");
-  const settoken = useAdminAuthStore((state ) => { return state.setToken })
+  const settoken = useAdminAuthStore((state) => {
+    return state.setToken;
+  });
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const response = await fetch(
-      "https://mentalsaathi-express-backend.onrender.com/api/v1/admin/login",
-      {
-        method: "post",
+    adminApi
+      .post("/login", credentials, {
         headers: {
-          "Content-type": "application/json",
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          email: credentials.email,
-          password: credentials.password,
-        }),
-      }
-    );
-    const res = await response.json();
-    if (res.success === true) {
-      toast.success(res.message);
-      settoken(res.token)
-      router.push("/admin/dashboard");
-    } else {
-      toast.error(res.message);
-    }
+      })
+      .then((repsonse) => {
+        toast.success(repsonse.data.message);
+        settoken(repsonse.data.token);
+        router.push("/admin/dashboard");
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message);
+      });
   };
 
   return (
@@ -175,7 +171,6 @@ export default function AdminLoginPage() {
             </form>
 
             {/* Demo credentials */}
-     
           </CardContent>
         </Card>
 

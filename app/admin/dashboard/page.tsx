@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import useAdminAuthStore from "@/store/admin.auth.store";
+import { adminApi } from "@/utils/api.utils";
+import toast from "react-hot-toast";
 
 // Mock data for dashboard
 const dashboardStats = {
@@ -93,7 +95,6 @@ const pendingReviews = [
 ];
 
 export default function AdminDashboard() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
   const [dashboardData, setDashboardData] = useState({
     totalUser: "",
@@ -103,25 +104,22 @@ export default function AdminDashboard() {
     return state.token;
   });
   const getDashboardData = async () => {
-    const response = await fetch(
-      "https://mentalsaathi-express-backend.onrender.com/api/v1/admin/get-important",
-      {
-        method: "get",
+    adminApi
+      .get("/get-important", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
-    );
-    const res = await response.json();
-    console.log(res);
-    if(res.success===false){
-      router.push('/admin/login')
-    }
-    setDashboardData((prev) => ({
-      ...prev,
-      totalUser: res.totalUser,
-      activeUser: res.active,
-    }));
+      })
+      .then((response) => {
+        setDashboardData((prev) => ({
+          ...prev,
+          totalUser: response.data.totalUser,
+          activeUser: response.data.active,
+        }));
+      })
+      .catch((error) => {
+        router.push("/admin/login");
+      });
   };
   useEffect(() => {
     getDashboardData();
