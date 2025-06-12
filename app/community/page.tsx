@@ -13,6 +13,7 @@ import useAuthStore from "@/store/auth.store";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import CommentBox from "@/components/ui/CommentBox";
+import { postApi } from "@/utils/api.utils";
 
 export default function CommunityPage() {
   type Post = {
@@ -48,9 +49,14 @@ export default function CommunityPage() {
 
   // const [postTitle, setPostTitle] = useState("");
   // const [postContent, setPostContent] = useState("");
-  const [title, setTitle] = useState("");
-  const [tcategory, setTcategory] = useState("");
-  const [preview, setPreview] = useState("");
+  // const [title, setTitle] = useState("");
+  // const [category, setTcategory] = useState("");
+  // const [preview, setPreview] = useState("");
+  const [postdata, setPostdata] = useState({
+    title: "",
+    category: "",
+    preview: "",
+  });
   const [isLiked, setIsLiked] = useState(false);
   const [activePosts, setActivePosts] = useState<Post[]>([]);
   const [likedata, setLikedata] = useState<LikeData[]>([]);
@@ -99,51 +105,41 @@ export default function CommunityPage() {
   };
   const [commentData, setCommentData] = useState<comment[]>([]);
   const getLikeData = async () => {
-    const response = await fetch(
-      "https://mentalsaathi-express-backend.onrender.com/api/v1/post/get-post-likes",
-      {
+    postApi
+      .get("/get-post-likes", {
         headers: {
-          "Content-type": "application/json",
+          "Content-Type": "application/json",
         },
-      }
-    );
-    const res = await response.json();
-    if (res.success === true) {
-      setLikedata(res.likeData);
-      console.log(res.likeData);
-    }
+      })
+      .then((response) => {
+        setLikedata(response.data.likeData);
+      })
+      .catch((error) => {
+        // toast.error(error.response.data.message);
+        console.log(error);
+      });
   };
   const getCommentData = async () => {
-    try {
-      const response = await fetch(
-        "https://mentalsaathi-express-backend.onrender.com/api/v1/post/get-comment"
-      );
-      const res = await response.json();
-      if (res.success === true) {
-        setCommentData(res.commentData);
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    postApi
+      .get("/get-comment")
+      .then((response) => {
+        setCommentData(response.data.commentData);
+        console.log(commentData);
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message);
+      });
   };
   const getData = async () => {
-    const response = await fetch(
-      "https://mentalsaathi-express-backend.onrender.com/api/v1/post/get-community",
-      {
-        method: "get",
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    const res = await response.json();
-    console.log(res);
-    if (res.success === true) {
-      console.log(res.communityPostData);
-      setActivePosts(res.communityPostData);
-      console.log(activePosts);
-    }
+    postApi
+      .get("/get-community")
+      .then((res) => {
+        setActivePosts(res.data.communityPostData);
+        // console.log(activePosts);
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message);
+      });
   };
   const categories = [
     {
@@ -278,42 +274,32 @@ export default function CommunityPage() {
                   if (isSubmitting) return;
 
                   setIsSubmitting(true);
-                  try {
-                    const response = await fetch(
-                      "https://mentalsaathi-express-backend.onrender.com/api/v1/post/community",
-                      {
-                        method: "post",
-                        headers: {
-                          "Content-type": "application/json",
-                          Authorization: `Bearer ${token}`,
-                        },
-                        body: JSON.stringify({
-                          title: title,
-                          category: tcategory,
-                          preview: preview,
-                          // time: Date.now()
-                        }),
-                      }
-                    );
-                    const res = await response.json();
-                    console.log(res);
-                    if (res.success === true) {
-                      toast.success(res.message);
-                      setTitle("");
-                      setPreview("");
-                      setTcategory("");
+                  postApi
+                    .post("/community", postdata, {
+                      headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                      },
+                    })
+                    .then((response) => {
+                      setPostdata((prev) => ({
+                        ...prev,
+                        title: "",
+                        preview: "",
+                        category: "",
+                      }));
                       setShowPostForm(false);
                       // router.replace("/community");
+                      // console.log(response);
                       getData();
-                    }
-                    if (res.success === false) {
-                      toast.error(res.message);
-                    }
-                  } catch (error) {
-                    console.error(error);
-                  } finally {
-                    setIsSubmitting(false);
-                  }
+                    })
+                    .catch((error) => {
+                      console.log(error.response.data.message);
+                      // console.log(postdata);
+                    })
+                    .finally(() => {
+                      setIsSubmitting(false);
+                    });
                 }}
               >
                 <Card className="border-green-100 shadow-lg bg-green-50/50">
@@ -326,13 +312,19 @@ export default function CommunityPage() {
                     <Input
                       placeholder="What's on your mind?"
                       onChange={(event) => {
-                        setTitle(event.target.value);
+                        setPostdata((prev) => ({
+                          ...prev,
+                          title: event.target.value,
+                        }));
                       }}
                       className="border-green-200 focus:border-green-300"
                     />
                     <Textarea
                       onChange={(event) => {
-                        setPreview(event.target.value);
+                        setPostdata((prev) => ({
+                          ...prev,
+                          preview: event.target.value,
+                        }));
                       }}
                       placeholder="Share your story... This is a safe space."
                       className="min-h-[120px] border-green-200 focus:border-green-300 resize-none"
@@ -342,8 +334,12 @@ export default function CommunityPage() {
                         <Button
                           key={category.name}
                           variant="outline"
-                          onClick={() => {
-                            setTcategory(category.name);
+                          onClick={(event) => {
+                            event.preventDefault();
+                            setPostdata((prev) => ({
+                              ...prev,
+                              category: category.name,
+                            }));
                           }}
                           className="cursor-pointer hover:bg-gray-100"
                         >
@@ -440,23 +436,24 @@ export default function CommunityPage() {
                                   return item.postId === post._id;
                                 })}
                                 onSubmit={async (comment: string) => {
-                                  const response = await fetch(
-                                    `https://mentalsaathi-express-backend.onrender.com/api/v1/post/comment/${post._id}`,
-
-                                    {
-                                      method: "post",
-                                      headers: {
-                                        "Content-type": "application/json",
-                                        Authorization: `Bearer ${token}`,
-                                      },
-                                      body: JSON.stringify({
+                                  postApi
+                                    .post(
+                                      `/comment/${post._id}`,
+                                      {
                                         comment: comment,
-                                      }),
-                                    }
-                                  );
-                                  const res = await response.json();
-                                  console.log(res);
-                                  getCommentData();
+                                      },
+                                      {
+                                        headers: {
+                                          "Content-Type": "application/json",
+                                          Authorization: `Bearer ${token}`,
+                                        },
+                                      }
+                                    )
+                                    .then(() => {
+                                      getCommentData();
+                                      
+                                    })
+                                    .catch(() => {});
                                 }}
                               />
                             ) : (
@@ -468,30 +465,33 @@ export default function CommunityPage() {
                           <button
                             onClick={async () => {
                               // setIsLiked(!isLiked);
-                              const response = await fetch(
-                                `https://mentalsaathi-express-backend.onrender.com/api/v1/post/like/${post._id}`,
-                                {
-                                  method: "post",
-                                  headers: {
-                                    "Content-type": "application/json",
-                                    Authorization: `Bearer ${token}`,
-                                  },
-                                }
-                              );
-                              const res = await response.json();
-                              if (res.success === true) {
-                                toast.success(res.message);
-                                router.refresh();
-                                getLikeData();
-                                if (res.message === "post is liked") {
-                                  setIsLiked(true);
-                                } else {
-                                  setIsLiked(false);
-                                }
-                              } else {
-                                toast.error(res.message);
-                                router.push("/login");
-                              }
+                              postApi
+                                .post(
+                                  `/like/${post._id}`,
+                                  {},
+                                  {
+                                    headers: {
+                                      "Content-Type": "application/json",
+                                      Authorization: `Bearer ${token}`,
+                                    },
+                                  }
+                                )
+                                .then((response) => {
+                                  toast.success(response.data.message);
+                                  router.refresh();
+                                  getLikeData();
+                                  if (
+                                    response.data.message === "post is liked"
+                                  ) {
+                                    setIsLiked(true);
+                                  } else {
+                                    setIsLiked(false);
+                                  }
+                                })
+                                .catch((error) => {
+                                  toast.error(error.response.data.message);
+                                  router.push("/login");
+                                });
                             }}
                             className="flex items-center gap-1"
                           >
