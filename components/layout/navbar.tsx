@@ -6,6 +6,9 @@ import { Brain, Heart, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import useAuthStore from "@/store/auth.store";
+import { authApi } from "@/utils/api.utils";
+import { Avatar } from "../ui/avatar";
+import SimpleAvatar from "../ui/imageAvatar";
 
 export function Navbar() {
   const router = useRouter();
@@ -13,7 +16,14 @@ export function Navbar() {
   const pathname = usePathname();
   const [islogin, setIslogin] = useState(false);
   const token = useAuthStore((state) => state.token);
-  const [userData, setUserData] = useState({ name: "" });
+  type UserData = {
+    name: string;
+    profile_picture: string;
+  };
+  const [userData, setUserData] = useState<UserData>({
+    name: "",
+    profile_picture: "",
+  });
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/community", label: "Community" },
@@ -40,24 +50,23 @@ export function Navbar() {
   });
   const checkLoginState = async () => {
     console.log(token);
-    const response = await fetch(
-      "https://mentalsaathi-express-backend.onrender.com/api/v1/auth/authenticate",
-      {
-        method: "post",
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    const res = await response.json();
-    console.log(res);
-    if (res.success === true) setIslogin(true);
-    if (res.success === false) {
-      setIslogin(false);
-      // router.push("/login");
-    }
-    setUserData(res);
+    authApi
+      .post(
+        "/authenticate",
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      .then((response) => {
+        setIslogin(true);
+        setUserData((previous) => ({
+          ...previous,
+          name: response.data.name,
+          profile_picture: response.data.profile_picture,
+        }));
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
   };
   useEffect(() => {
     if (hasHydrated && token) {
@@ -99,8 +108,9 @@ export function Navbar() {
               </Link>
             ))}
             {islogin ? (
-              <p className="`transition-colors font-medium text-gray-700">
+              <p className="`transition-colors font-medium pl-3 flex justify-center items-center gap-3 text-gray-700">
                 {" "}
+                <SimpleAvatar src={userData.profile_picture} />
                 {userData.name}
               </p>
             ) : (

@@ -1,5 +1,5 @@
 "use client";
-import { authApi } from "../../utils/api.utils.js";
+import { authApi, mediaApi } from "../../utils/api.utils.js";
 import type React from "react";
 
 import { useState } from "react";
@@ -24,15 +24,18 @@ export default function page() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loginData, setLoginData] = useState({ email: "", password: "" });
+  const [file, setFile] = useState<File | null>(null);
   const [signupData, setSignupData] = useState({
     email: "",
     name: "",
     password: "",
     confirmPassword: "",
+    profile_picture: "",
   });
   const [loginStatus, setLoginStatus] = useState<"idle" | "success" | "error">(
     "idle"
   );
+  const profiledata = new FormData();
   const [signupStatus, setSignupStatus] = useState<
     "idle" | "success" | "error"
   >("idle");
@@ -76,8 +79,9 @@ export default function page() {
             <CardContent className="p-6">
               <Tabs defaultValue="login" className="w-full">
                 <form
-                  onSubmit={async (event) => {
+                  onSubmit={(event) => {
                     event.preventDefault();
+                    console.log("clocked")
                     authApi
                       .post("/signup", signupData, {
                         headers: {
@@ -183,6 +187,50 @@ export default function page() {
                           <Eye className="w-4 h-4" />
                         )}
                       </button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password">Profile Picture</Label>
+                    <div className="relative">
+                      <Input
+                        type="file"
+                        placeholder="Enter your profile picture"
+                        onChange={(e) => {
+                          e.preventDefault();
+                          const selectedFile = e.target.files?.[0];
+                          console.log(selectedFile);
+                          if (!selectedFile) return;
+
+                          setFile(selectedFile); // if needed elsewhere
+
+                          const formData = new FormData();
+                          formData.append("profile", selectedFile); // MUST match your backend field
+
+                          mediaApi
+                            .post("/profile", formData)
+                            .then((response) => {
+                              console.log(
+                                "Upload Success:",
+                                response.data.file.url
+                              );
+                              setSignupData((prev) => ({
+                                ...prev,
+                                profile_picture: response.data.file.url,
+                              }));
+                              toast.success("image uploaded succesfully")
+                              // Optional: setUploadedUrl(response.data.file.url);
+                            })
+                            .catch((error) => {
+                              console.error(
+                                "Upload Error:",
+                                error.response?.data || error.message
+                              );
+                              toast.error("somehtin unexpected happened, please try later")
+                            });
+                        }}
+                        className="border-purple-200 focus:border-purple-300 pr-10"
+                        required
+                      />
                     </div>
                   </div>
 

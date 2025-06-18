@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import SimpleAvatar from "./imageAvatar";
 
 export default function CommentBox(props: any) {
   const [comment, setComment] = useState("");
@@ -38,8 +39,12 @@ export default function CommentBox(props: any) {
           {/* Example Comment */}
           {props.data.map((item: any) => {
             return (
-              <div key={item._id} className="bg-gray-50 p-4 rounded-xl shadow-sm">
-                <p className="text-sm text-gray-600 mb-1 font-semibold">
+              <div
+                key={item._id}
+                className="bg-gray-50 p-4 rounded-xl shadow-sm"
+              >
+                <p className="text-sm flex items-center gap-3 text-gray-600 mb-1 font-semibold">
+                  <SimpleAvatar src={item.profile_picture} />
                   {item.userName}
                 </p>
                 <p className="text-gray-800">{item.comment}</p>

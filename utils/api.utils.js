@@ -16,3 +16,7 @@ export const adminApi = axios.create({
     baseURL: "https://mentalsaathi-express-backend.onrender.com/api/v1/admin", 
     timeout: 10000
 })
+export const mediaApi = axios.create({
+    baseURL: "https://mentalsaathi-express-backend.onrender.com/api/v1/media", 
+    timeout: 10000
+})
