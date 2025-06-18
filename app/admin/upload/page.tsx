@@ -41,6 +41,7 @@ const instructors = [
   "Dr. Arjun Patel",
   "Dr. Kavya Reddy",
   "Dr. Rahul Singh",
+  "From Youtube",
 ];
 
 export default function UploadPage() {
@@ -49,12 +50,12 @@ export default function UploadPage() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadComplete, setUploadComplete] = useState(false);
-  
+
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
-  
+
   const token = useAdminAuthStore((state) => {
     return state.token;
   });
@@ -81,21 +82,16 @@ export default function UploadPage() {
   }, []);
   const [formData, setFormData] = useState({
     title: "",
-    description: "",
     category: "",
     instructor: "",
     duration: "",
     tags: "",
-    transcript: "",
+
     status: "draft",
   });
 
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const thumbnailInputRef = useRef<HTMLInputElement>(null);
+
   const router = useRouter();
-
-
 
   if (!isAuthenticated) {
     return (
@@ -167,19 +163,16 @@ export default function UploadPage() {
     setThumbnailPreview(null);
     setFormData({
       title: "",
-      description: "",
       category: "",
       instructor: "",
       duration: "",
       tags: "",
-      transcript: "",
       status: "draft",
     });
     setUploadStep(1);
     setUploadProgress(0);
     setUploadComplete(false);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-    if (thumbnailInputRef.current) thumbnailInputRef.current.value = "";
+
   };
 
   if (uploadComplete) {
@@ -297,11 +290,7 @@ export default function UploadPage() {
                       </Label>
                       <div className="mt-2">
                         {!videoFile ? (
-                          <div
-                            onClick={() => fileInputRef.current?.click()}
-                            className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 cursor-pointer transition-colors"
-                          >
-                            <Video className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                          <div className="border-2 border-dashed flex justify-center items-center flex-col border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 cursor-pointer transition-colors">
                             <p className="text-lg font-medium text-gray-900 mb-2">
                               Upload your video
                             </p>
@@ -311,6 +300,17 @@ export default function UploadPage() {
                             <p className="text-sm text-gray-500">
                               Supports MP4, MOV, AVI (Max 500MB)
                             </p>
+                            <input
+                              onChange={(event) => {
+                                event.preventDefault();
+                                if (!event.target.files) return;
+                                const file = event.target.files[0];
+                                console.log(file);
+                              }}
+                              className="border border-black w-1/2"
+                              type="file"
+                              // ref={fileInputRef}
+                            />
                           </div>
                         ) : (
                           <div className="space-y-4">
@@ -336,8 +336,8 @@ export default function UploadPage() {
                                 onClick={() => {
                                   setVideoFile(null);
                                   setVideoPreview(null);
-                                  if (fileInputRef.current)
-                                    fileInputRef.current.value = "";
+                                  // if (fileInputRef.current)
+                                    // fileInputRef.current.value = "";
                                 }}
                               >
                                 <X className="w-4 h-4" />
@@ -347,7 +347,7 @@ export default function UploadPage() {
                             {videoPreview && (
                               <div className="relative">
                                 <video
-                                  ref={videoRef}
+                                  // ref={videoRef}
                                   src={videoPreview}
                                   className="w-full max-w-md mx-auto rounded-lg"
                                   controls
@@ -357,7 +357,7 @@ export default function UploadPage() {
                           </div>
                         )}
                         <input
-                          ref={fileInputRef}
+                          // ref={fileInputRef}
                           type="file"
                           accept="video/*"
                           onChange={handleVideoUpload}
@@ -374,7 +374,7 @@ export default function UploadPage() {
                       <div className="mt-2">
                         {!thumbnailFile ? (
                           <div
-                            onClick={() => thumbnailInputRef.current?.click()}
+                            // onClick={() => thumbnailInputRef.current?.click()}
                             className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 cursor-pointer transition-colors"
                           >
                             <ImageIcon className="w-8 h-8 text-gray-400 mx-auto mb-2" />
@@ -407,8 +407,8 @@ export default function UploadPage() {
                               onClick={() => {
                                 setThumbnailFile(null);
                                 setThumbnailPreview(null);
-                                if (thumbnailInputRef.current)
-                                  thumbnailInputRef.current.value = "";
+                                // if (thumbnailInputRef.current)
+                                  // thumbnailInputRef.current.value = "";
                               }}
                             >
                               <X className="w-4 h-4" />
@@ -416,7 +416,7 @@ export default function UploadPage() {
                           </div>
                         )}
                         <input
-                          ref={thumbnailInputRef}
+                          // ref={thumbnailInputRef}
                           type="file"
                           accept="image/*"
                           onChange={handleThumbnailUpload}
@@ -532,23 +532,6 @@ export default function UploadPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="description">Description *</Label>
-                      <Textarea
-                        id="description"
-                        value={formData.description}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            description: e.target.value,
-                          }))
-                        }
-                        placeholder="Describe what this video covers and how it can help students..."
-                        className="min-h-[100px]"
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
                       <Label htmlFor="tags">Tags (comma-separated)</Label>
                       <Input
                         id="tags"
@@ -560,22 +543,6 @@ export default function UploadPage() {
                           }))
                         }
                         placeholder="e.g., breathing, anxiety, relaxation, mindfulness"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="transcript">Transcript (Optional)</Label>
-                      <Textarea
-                        id="transcript"
-                        value={formData.transcript}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            transcript: e.target.value,
-                          }))
-                        }
-                        placeholder="Add the video transcript for accessibility..."
-                        className="min-h-[120px]"
                       />
                     </div>
 
@@ -593,8 +560,7 @@ export default function UploadPage() {
                         disabled={
                           !formData.title ||
                           !formData.category ||
-                          !formData.instructor ||
-                          !formData.description
+                          !formData.instructor
                         }
                         className="bg-purple-600 hover:bg-purple-700 text-white"
                       >
@@ -633,9 +599,7 @@ export default function UploadPage() {
                             <h4 className="font-medium text-gray-900">
                               {formData.title}
                             </h4>
-                            <p className="text-sm text-gray-600">
-                              {formData.description}
-                            </p>
+
                             <div className="flex items-center gap-2 text-xs text-gray-500">
                               <span>{formData.instructor}</span>
                               <span>•</span>

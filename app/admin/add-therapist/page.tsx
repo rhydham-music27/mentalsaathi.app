@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
-import { toast } from "@/components/ui/use-toast";
+// import { toast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import {
   UserPlus,
@@ -28,8 +28,10 @@ import {
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import useAdminAuthStore from "@/store/admin.auth.store";
+import { adminApi, mediaApi } from "@/utils/api.utils";
+import toast from "react-hot-toast";
 
-const specializations = [
+const expertise = [
   "Anxiety Disorders",
   "Depression",
   "Cognitive Behavioral Therapy (CBT)",
@@ -45,26 +47,26 @@ const specializations = [
 ];
 
 interface FormData {
-  fullName: string;
+  name: string;
   email: string;
-  phone: string;
+  phone_number: string;
   gender: string;
-  specializations: string[];
+  expertise: string;
   experience: string;
   bio: string;
-  profilePicture: File | null;
+  profile_picture: string;
   license: File | null;
 }
 
 interface FormErrors {
-  fullName?: string;
+  name?: string;
   email?: string;
-  phone?: string;
+  phone_number?: string;
   gender?: string;
-  specializations?: string;
+  expertise?: string;
   experience?: string;
   bio?: string;
-  profilePicture?: string;
+  profile_picture?: string;
   license?: string;
 }
 
@@ -74,14 +76,14 @@ export default function AddTherapistPage() {
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
-    fullName: "",
+    name: "",
     email: "",
-    phone: "",
+    phone_number: "",
     gender: "",
-    specializations: [],
+    expertise: "",
     experience: "",
     bio: "",
-    profilePicture: null,
+    profile_picture: "",
     license: null,
   });
   const [errors, setErrors] = useState<FormErrors>({});
@@ -128,10 +130,10 @@ export default function AddTherapistPage() {
     const newErrors: FormErrors = {};
 
     // Full Name validation
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = "Full name is required";
-    } else if (formData.fullName.trim().length < 2) {
-      newErrors.fullName = "Full name must be at least 2 characters";
+    if (!formData.name.trim()) {
+      newErrors.name = "Full name is required";
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = "Full name must be at least 2 characters";
     }
 
     // Email validation
@@ -144,10 +146,12 @@ export default function AddTherapistPage() {
 
     // Phone validation
     const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
-    if (!formData.phone.trim()) {
-      newErrors.phone = "Phone number is required";
-    } else if (!phoneRegex.test(formData.phone.replace(/[\s\-$$$$]/g, ""))) {
-      newErrors.phone = "Please enter a valid phone number";
+    if (!formData.phone_number.trim()) {
+      newErrors.phone_number = "Phone number is required";
+    } else if (
+      !phoneRegex.test(formData.phone_number.replace(/[\s\-$$$$]/g, ""))
+    ) {
+      newErrors.phone_number = "Please enter a valid phone_number number";
     }
 
     // Gender validation
@@ -156,8 +160,8 @@ export default function AddTherapistPage() {
     }
 
     // Specializations validation
-    if (formData.specializations.length === 0) {
-      newErrors.specializations = "Please select at least one specialization";
+    if (formData.expertise.length === 0) {
+      newErrors.expertise = "Please select at least one specialization";
     }
 
     // Experience validation
@@ -178,8 +182,8 @@ export default function AddTherapistPage() {
     }
 
     // Profile picture validation
-    if (!formData.profilePicture) {
-      newErrors.profilePicture = "Profile picture is required";
+    if (!formData.profile_picture) {
+      newErrors.profile_picture = "Profile picture is required";
     }
 
     // License validation
@@ -189,52 +193,6 @@ export default function AddTherapistPage() {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
-
-  const handleInputChange = (field: keyof FormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  };
-
-  const handleSpecializationChange = (
-    specialization: string,
-    checked: boolean
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      specializations: checked
-        ? [...prev.specializations, specialization]
-        : prev.specializations.filter((s) => s !== specialization),
-    }));
-    if (errors.specializations) {
-      setErrors((prev) => ({ ...prev, specializations: undefined }));
-    }
-  };
-
-  const handleProfilePictureChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.type.startsWith("image/")) {
-        setFormData((prev) => ({ ...prev, profilePicture: file }));
-        const reader = new FileReader();
-        reader.onload = () => setProfilePreview(reader.result as string);
-        reader.readAsDataURL(file);
-        if (errors.profilePicture) {
-          setErrors((prev) => ({ ...prev, profilePicture: undefined }));
-        }
-      } else {
-        toast({
-          title: "Invalid file type",
-          description: "Please select an image file (JPG, PNG, etc.)",
-          variant: "destructive",
-        });
-      }
-    }
   };
 
   const handleLicenseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -247,66 +205,16 @@ export default function AddTherapistPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      toast({
-        title: "Validation Error",
-        description: "Please fix the errors in the form before submitting.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      toast({
-        title: "Therapist Added Successfully! 🎉",
-        description: `Dr. ${formData.fullName} has been added to the platform and will receive login credentials via email.`,
-        duration: 5000,
-      });
-
-      // Reset form
-      setFormData({
-        fullName: "",
-        email: "",
-        phone: "",
-        gender: "",
-        specializations: [],
-        experience: "",
-        bio: "",
-        profilePicture: null,
-        license: null,
-      });
-      setProfilePreview(null);
-      if (profileInputRef.current) profileInputRef.current.value = "";
-      if (licenseInputRef.current) licenseInputRef.current.value = "";
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to add therapist. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   const clearForm = () => {
     setFormData({
-      fullName: "",
+      name: "",
       email: "",
-      phone: "",
+      phone_number: "",
       gender: "",
-      specializations: [],
+      expertise: "",
       experience: "",
       bio: "",
-      profilePicture: null,
+      profile_picture: "",
       license: null,
     });
     setProfilePreview(null);
@@ -363,7 +271,25 @@ export default function AddTherapistPage() {
               </CardHeader>
 
               <CardContent className="p-8">
-                <form onSubmit={handleSubmit} className="space-y-8">
+                <form
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    // console.log(formData);
+                    adminApi
+                      .post("/add-therapist", formData, {
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                      })
+                      .then((response) => {
+                        toast.success(response.data.message);
+                      })
+                      .catch((error) => {
+                        toast.error(error.response.data.message);
+                      });
+                  }}
+                  className="space-y-8"
+                >
                   {/* Personal Information */}
                   <div className="space-y-6">
                     <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
@@ -373,28 +299,31 @@ export default function AddTherapistPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <Label
-                          htmlFor="fullName"
+                          htmlFor="name"
                           className="text-gray-700 font-medium"
                         >
                           Full Name *
                         </Label>
                         <Input
-                          id="fullName"
-                          value={formData.fullName}
-                          onChange={(e) =>
-                            handleInputChange("fullName", e.target.value)
-                          }
+                          id="name"
+                          value={formData.name}
+                          onChange={(event) => {
+                            setFormData((previous) => ({
+                              ...previous,
+                              name: event.target.value,
+                            }));
+                          }}
                           placeholder="Dr. Priya Sharma"
                           className={`border-2 transition-colors ${
-                            errors.fullName
+                            errors.name
                               ? "border-red-300 focus:border-red-500"
                               : "border-gray-200 focus:border-purple-400"
                           }`}
                         />
-                        {errors.fullName && (
+                        {errors.name && (
                           <p className="text-red-600 text-sm flex items-center gap-1">
                             <AlertCircle className="w-4 h-4" />
-                            {errors.fullName}
+                            {errors.name}
                           </p>
                         )}
                       </div>
@@ -410,9 +339,12 @@ export default function AddTherapistPage() {
                           id="email"
                           type="email"
                           value={formData.email}
-                          onChange={(e) =>
-                            handleInputChange("email", e.target.value)
-                          }
+                          onChange={(event) => {
+                            setFormData((previous) => ({
+                              ...previous,
+                              email: event.target.value,
+                            }));
+                          }}
                           placeholder="priya.sharma@example.com"
                           className={`border-2 transition-colors ${
                             errors.email
@@ -430,29 +362,32 @@ export default function AddTherapistPage() {
 
                       <div className="space-y-2">
                         <Label
-                          htmlFor="phone"
+                          htmlFor="phone_number"
                           className="text-gray-700 font-medium"
                         >
                           Phone Number *
                         </Label>
                         <Input
-                          id="phone"
+                          id="phone_number"
                           type="tel"
-                          value={formData.phone}
-                          onChange={(e) =>
-                            handleInputChange("phone", e.target.value)
-                          }
+                          value={formData.phone_number}
+                          onChange={(event) => {
+                            setFormData((previous) => ({
+                              ...previous,
+                              phone_number: event.target.value,
+                            }));
+                          }}
                           placeholder="+91 98765 43210"
                           className={`border-2 transition-colors ${
-                            errors.phone
+                            errors.phone_number
                               ? "border-red-300 focus:border-red-500"
                               : "border-gray-200 focus:border-purple-400"
                           }`}
                         />
-                        {errors.phone && (
+                        {errors.phone_number && (
                           <p className="text-red-600 text-sm flex items-center gap-1">
                             <AlertCircle className="w-4 h-4" />
-                            {errors.phone}
+                            {errors.phone_number}
                           </p>
                         )}
                       </div>
@@ -470,9 +405,12 @@ export default function AddTherapistPage() {
                           min="0"
                           max="50"
                           value={formData.experience}
-                          onChange={(e) =>
-                            handleInputChange("experience", e.target.value)
-                          }
+                          onChange={(event) => {
+                            setFormData((previous) => ({
+                              ...previous,
+                              experience: event.target.value,
+                            }));
+                          }}
                           placeholder="5"
                           className={`border-2 transition-colors ${
                             errors.experience
@@ -496,9 +434,12 @@ export default function AddTherapistPage() {
                       </Label>
                       <RadioGroup
                         value={formData.gender}
-                        onValueChange={(value) =>
-                          handleInputChange("gender", value)
-                        }
+                        onValueChange={(value) => {
+                          setFormData((previous) => ({
+                            ...previous,
+                            gender: value,
+                          }));
+                        }}
                         className="flex gap-6"
                       >
                         <div className="flex items-center space-x-2">
@@ -544,36 +485,39 @@ export default function AddTherapistPage() {
                         Select all areas of expertise (minimum 1 required)
                       </p>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {specializations.map((specialization) => (
-                          <div
-                            key={specialization}
-                            className="flex items-center space-x-2"
-                          >
-                            <Checkbox
-                              id={specialization}
-                              checked={formData.specializations.includes(
-                                specialization
-                              )}
-                              onCheckedChange={(checked) =>
-                                handleSpecializationChange(
-                                  specialization,
-                                  checked as boolean
-                                )
-                              }
-                            />
-                            <Label
-                              htmlFor={specialization}
-                              className="text-sm cursor-pointer"
+                        <RadioGroup
+                          value={formData.expertise}
+                          onValueChange={(value) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              expertise: value,
+                            }))
+                          }
+                          
+                        >
+                          {expertise.map((specialization) => (
+                            <div
+                              key={specialization}
+                              className="flex items-center space-x-2"
                             >
-                              {specialization}
-                            </Label>
-                          </div>
-                        ))}
+                              <RadioGroupItem
+                                value={specialization}
+                                id={specialization}
+                              />
+                              <Label
+                                htmlFor={specialization}
+                                className="text-sm cursor-pointer"
+                              >
+                                {specialization}
+                              </Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
                       </div>
-                      {errors.specializations && (
+                      {errors.expertise && (
                         <p className="text-red-600 text-sm flex items-center gap-1">
                           <AlertCircle className="w-4 h-4" />
-                          {errors.specializations}
+                          {errors.expertise}
                         </p>
                       )}
                     </div>
@@ -593,9 +537,12 @@ export default function AddTherapistPage() {
                       <Textarea
                         id="bio"
                         value={formData.bio}
-                        onChange={(e) =>
-                          handleInputChange("bio", e.target.value)
-                        }
+                        onChange={(event) => {
+                          setFormData((previous) => ({
+                            ...previous,
+                            bio: event.target.value,
+                          }));
+                        }}
                         placeholder="Dr. Priya Sharma is a licensed clinical psychologist with over 5 years of experience in treating anxiety and depression. She specializes in Cognitive Behavioral Therapy and has helped hundreds of students overcome academic stress..."
                         className={`min-h-[120px] border-2 transition-colors ${
                           errors.bio
@@ -615,10 +562,39 @@ export default function AddTherapistPage() {
                         </p>
                       </div>
                     </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="bio"
+                        className="text-gray-700 font-medium"
+                      >
+                        Profile Picture *
+                      </Label>
+
+                      <input
+                        type="file"
+                        onChange={(event) => {
+                          event.preventDefault();
+                          if (!event.target.files) return;
+                          const file = event.target.files[0];
+                          const form = new FormData();
+                          form.append("profile", file);
+                          mediaApi
+                            .post("/profile", form)
+                            .then((response) => {
+                              setFormData((previous) => ({
+                                ...previous,
+                                profile_picture: response.data.file.url,
+                              }));
+                            })
+                            .catch((error) => {
+                              return;
+                            });
+                        }}
+                      />
+                    </div>
                   </div>
 
                   {/* File Uploads */}
-              
 
                   {/* Form Actions */}
                   <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">

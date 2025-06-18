@@ -341,7 +341,13 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Button className="h-20 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex flex-col items-center justify-center gap-2">
+                <Button
+                  className="h-20 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex flex-col items-center justify-center gap-2"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    router.push("/admin/upload");
+                  }}
+                >
                   <Upload className="w-6 h-6" />
                   Upload New Video
                 </Button>

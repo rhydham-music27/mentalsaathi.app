@@ -27,14 +27,14 @@ export function Navbar() {
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/community", label: "Community" },
-    // { href: "/book-listener", label: "Book a Listener" },
+    { href: "/chat-with-therapist", label: "Chat With Therapist" },
     { href: "/journal", label: "Self Therapy" },
     { href: "/about", label: "About" },
   ];
   const mobilenavLinks = [
     { href: "/", label: "Home" },
     { href: "/community", label: "Community" },
-    // { href: "/book-listener", label: "Book a Listener" },
+    { href: "/chat-with-therapist", label: "Chat With Therapist" },
     { href: "/journal", label: "Self Therapy" },
     { href: "/about", label: "About" },
     { href: "/signup", label: "signup" },
