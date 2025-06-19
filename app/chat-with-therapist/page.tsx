@@ -11,12 +11,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import useAuthStore from "@/store/auth.store";
-import { therapistApi } from "@/utils/api.utils";
+import { authApi, therapistApi } from "@/utils/api.utils";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Component() {
+  const router = useRouter()
   type Therapist = {
-    id: string;
+    _id: string;
     profile_picture: string;
     name: string;
     intials: string;
@@ -45,6 +47,60 @@ export default function Component() {
     };
     getTherapists();
   }, []);
+  type User = {
+    _id: string;
+    name: string;
+    email: string;
+    profile_picture: string;
+  };
+  const [me, setMe] = useState<User>({
+    _id: "",
+    email: "",
+    name: "",
+    profile_picture: "",
+  });
+  const [getTherapist, setTherapist] = useState<User>({
+    _id: "",
+    email: "",
+    name: "",
+    profile_picture: "",
+  });
+  useEffect(() => {
+    const getMyData = () => {
+      authApi
+        .post(
+          "/authenticate",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          localStorage.setItem(
+            "currentUser",
+            JSON.stringify({
+              _id: response.data._id,
+              email: response.data.email,
+              name: response.data.name,
+              profile_picture: response.data.profile_picture,
+            })
+          );
+          setMe((previous) => ({
+            ...previous,
+            _id: response.data._id,
+            email: response.data.email,
+            name: response.data.name,
+            profile_picture: response.data.profile_picture,
+          }));
+        })
+        .catch((error) => {
+          console.log(error.response.data);
+        });
+    };
+    getMyData();
+  }, []);
 
   return (
     <>
@@ -64,7 +120,7 @@ export default function Component() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {therapists.map((therapist) => (
               <Card
-                key={therapist.id}
+                key={therapist._id}
                 className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden"
               >
                 <CardHeader className="text-center pb-4">
@@ -106,6 +162,33 @@ export default function Component() {
 
                 <CardFooter className="px-6 pb-6">
                   <Button
+                    onClick={(event) => {
+                      event.preventDefault();
+                      therapistApi
+                        .get(`/${therapist._id}`)
+                        .then((response) => {
+                          localStorage.setItem(
+                            "therapist",
+                            JSON.stringify({
+                              _id: response.data._id,
+                              email: response.data.email,
+                              name: response.data.name,
+                              profile_picture: response.data.profile_picture,
+                            })
+                          );
+                          setTherapist((previous) => ({
+                            ...previous,
+                            _id: response.data._id,
+                            email: response.data.email,
+                            name: response.data.name,
+                            profile_picture: response.data.profile_picture,
+                          }));
+                          router.push(`/chat/${me._id}${getTherapist._id}`)
+                        })
+                        .catch((error) => {
+                          console.log(error.response.data);
+                        });
+                    }}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-xl transition-colors duration-200"
                     size="lg"
                   >
