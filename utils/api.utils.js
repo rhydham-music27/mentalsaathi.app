@@ -24,3 +24,11 @@ export const mediaApi = axios.create({
     baseURL: "https://mentalsaathi-express-backend.onrender.com/api/v1/media", 
     timeout: 10000
 })
+export const streamApi = axios.create({
+    baseURL: "https://mentalsaathi-express-backend.onrender.com/api/v1/stream", 
+    timeout: 10000
+})
+export const emailApi = axios.create({
+    baseURL: "https://mentalsaathi-express-backend.onrender.com/api/v1/email", 
+    timeout: 10000
+})

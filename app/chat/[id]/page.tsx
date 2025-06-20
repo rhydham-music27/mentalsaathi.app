@@ -1,5 +1,6 @@
 "use client";
-import TalkNotification from "@/components/ui/notifications";
+import ChatUI from "@/components/ui/ChatUI"; // ✅ replace TalkNotification
+import { streamApi } from "@/utils/api.utils";
 import React, { useEffect, useState } from "react";
 
 type User = {
@@ -12,6 +13,7 @@ type User = {
 export default function Page() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [therapist, setTherapist] = useState<User | null>(null);
+  const [token, setToken] = useState("");
 
   useEffect(() => {
     const userRaw = localStorage.getItem("currentUser");
@@ -27,12 +29,30 @@ export default function Page() {
     }
   }, []);
 
-  if (!currentUser || !therapist) return <p>Loading chat...</p>;
+  useEffect(() => {
+    if (!currentUser?._id) return;
+
+    streamApi
+      .post("/token", {
+        userId: currentUser._id,
+      })
+      .then((response) => {
+        setToken(response.data.token);
+        console.log(response.data.token);
+      })
+      .catch((error) => {
+        console.log(error.response?.data || error.message);
+      });
+  }, [currentUser]);
+
+  if (!currentUser || !therapist || !token) return <p>Loading chat...</p>;
 
   return (
-    <TalkNotification
-      currentUser={currentUser}
-      targetTherapist={therapist}
-    />
+    <ChatUI
+      userId={currentUser._id}
+      token={token}
+      otherUserId={therapist._id}
+      therapistName={therapist.name}
+      otherUserImage={therapist.profile_picture}    />
   );
 }

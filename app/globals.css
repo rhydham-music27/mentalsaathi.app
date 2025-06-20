@@ -48,7 +48,11 @@
     --ring: 240 4.9% 83.9%;
   }
 }
-
+.str-chat__message-reactions-options {
+  bottom: auto !important;
+  top: 100% !important;
+  margin-top: 8px !important;
+}
 @layer base {
   * {
     @apply border-border;
