@@ -202,7 +202,7 @@ export default function Component() {
 ${me.name} has initiated a chat with you on MentalSaathi.
 
 Please click the link below to join the conversation:
-https://mentalsaathi.in/therapist/${me._id}u?t=${therapist._id}
+https://mentalsaathi.in/therapist/${me._id}?t=${therapist._id}
 
 Warm regards,  
 Team MentalSaathi  
