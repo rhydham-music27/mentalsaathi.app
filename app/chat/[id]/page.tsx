@@ -35,6 +35,7 @@ export default function Page() {
     streamApi
       .post("/token", {
         userId: currentUser._id,
+        otherUserId: therapist?._id,
       })
       .then((response) => {
         setToken(response.data.token);
@@ -53,6 +54,8 @@ export default function Page() {
       token={token}
       otherUserId={therapist._id}
       therapistName={therapist.name}
-      otherUserImage={therapist.profile_picture}    />
+      userName={currentUser.name}
+      otherUserImage={therapist.profile_picture}
+    />
   );
 }

@@ -19,12 +19,14 @@ const ChatUI = ({
   otherUserId,
   therapistName,
   otherUserImage,
+  userName,
 }: {
   userId: string;
   token: string;
   otherUserId: string;
   therapistName: string;
   otherUserImage: string;
+  userName: string;
 }) => {
   const [client, setClient] = useState<StreamChat | null>(null);
   const [channel, setChannel] = useState<StreamChannel | null>(null);
@@ -66,7 +68,7 @@ const ChatUI = ({
         await existingClient.connectUser(
           {
             id: userId,
-            name: userId,
+            name: userName,
           },
           token
         );
@@ -125,7 +127,7 @@ const ChatUI = ({
             </div>{" "}
             {/* Make MessageList take all remaining height and scroll */}{" "}
             <div className="flex-1 overflow-y-auto">
-              <MessageList  />{" "}
+              <MessageList />{" "}
             </div>
             {/* Pin MessageInput to bottom */}{" "}
             <div className="border-t p-3 bg-white">
