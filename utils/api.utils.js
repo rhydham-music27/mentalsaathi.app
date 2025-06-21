@@ -32,3 +32,7 @@ export const emailApi = axios.create({
     baseURL: "https://mentalsaathi-express-backend.onrender.com/api/v1/email", 
     timeout: 10000
 })
+export const userApi = axios.create({
+    baseURL: "https://mentalsaathi-express-backend.onrender.com/api/v1/user", 
+    timeout: 10000
+})
