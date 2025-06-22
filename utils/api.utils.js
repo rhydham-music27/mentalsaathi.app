@@ -1,38 +1,38 @@
-const { default: axios } = require("axios");
+const { default: axios } = require(`axios`);
 
 export const authApi = axios.create({
-    baseURL: "https://mentalsaathi-express-backend.onrender.com/api/v1/auth",
+    baseURL: `${process.env.NEXT_PUBLIC_API_URL}/auth`,
     timeout: 10000
 })
 export const postApi = axios.create({
-    baseURL: "https://mentalsaathi-express-backend.onrender.com/api/v1/post",
+    baseURL: `${process.env.NEXT_PUBLIC_API_URL}/post`,
     timeout: 10000
 })
 export const toolsApi = axios.create({
-    baseURL: "https://mentalsaathi-express-backend.onrender.com/api/v1/tools",
+    baseURL: `${process.env.NEXT_PUBLIC_API_URL}/tools`,
     timeout: 10000
 })
 export const adminApi = axios.create({
-    baseURL: "https://mentalsaathi-express-backend.onrender.com/api/v1/admin", 
+    baseURL: `${process.env.NEXT_PUBLIC_API_URL}/admin`,
     timeout: 10000
 })
 export const therapistApi = axios.create({
-    baseURL: "https://mentalsaathi-express-backend.onrender.com/api/v1/therapist", 
+    baseURL: `${process.env.NEXT_PUBLIC_API_URL}/therapist`,
     timeout: 10000
 })
 export const mediaApi = axios.create({
-    baseURL: "https://mentalsaathi-express-backend.onrender.com/api/v1/media", 
+    baseURL: `${process.env.NEXT_PUBLIC_API_URL}/media`,
     timeout: 10000
 })
 export const streamApi = axios.create({
-    baseURL: "https://mentalsaathi-express-backend.onrender.com/api/v1/stream", 
+    baseURL: `${process.env.NEXT_PUBLIC_API_URL}/stream`,
     timeout: 10000
 })
 export const emailApi = axios.create({
-    baseURL: "https://mentalsaathi-express-backend.onrender.com/api/v1/email", 
+    baseURL: `${process.env.NEXT_PUBLIC_API_URL}/email`,
     timeout: 10000
 })
 export const userApi = axios.create({
-    baseURL: "https://mentalsaathi-express-backend.onrender.com/api/v1/user", 
+    baseURL: `${process.env.NEXT_PUBLIC_API_URL}/user`,
     timeout: 10000
 })
