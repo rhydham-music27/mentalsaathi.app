@@ -63,8 +63,7 @@ export default function AdminLoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Brain className="w-8 h-8 text-purple-400" />
-            <Heart className="w-7 h-7 text-pink-400" />
+            <img src="/logo.png" className="w-12 h-12" alt="" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">MentalSaathi</h1>
           <div className="flex items-center justify-center gap-2">

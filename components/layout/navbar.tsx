@@ -84,8 +84,7 @@ export function Navbar() {
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
             <div className="flex items-center gap-1">
-              <Brain className="w-6 h-6 text-purple-600" />
-              <Heart className="w-5 h-5 text-pink-500" />
+             <img src="/logo.png" className="w-10 h-10 invert bg-black" alt="" />
             </div>
             <span className="text-xl font-bold text-gray-800">
               MentalSaathi
