@@ -65,7 +65,9 @@ export default function LoginPage() {
         router.push("/community");
       })
       .catch((error) => {
-        console.log(error)
+        // console.log(error)
+        toast.error(error.response.data.message);
+        router.push('/signup')
       });
   };
 
