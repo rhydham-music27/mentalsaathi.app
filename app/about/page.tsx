@@ -12,7 +12,7 @@ const founders = [
     role: "Founder & CEO",
     bio: "As a dedicated Computer Science student at Chandigarh University, Rhydham is passionate about leveraging technology to transform mental health care. He envisions MentalSaathi as a pioneering digital platform that breaks down stigma and barriers, making mental health resources accessible, relatable, and supportive for students everywhere. Driven by empathy and innovation, Rhydham is committed to creating a safe space where young minds can find guidance and community on their mental wellness journey.",
     avatar: "🧠",
-    university: "Chandigarh University",
+    university: "Mental Saathi",
   },
 ];
 

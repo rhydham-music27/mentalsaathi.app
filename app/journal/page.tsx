@@ -27,63 +27,13 @@ import {
 import Link from "next/link";
 import useAuthStore from "@/store/auth.store";
 import toast from "react-hot-toast";
-import { toolsApi } from "@/utils/api.utils";
+import { huggingfaceApi, toolsApi } from "@/utils/api.utils";
 
 // Mock data for journal entries
 
 // const mockJournalEntries = getJournalData()
 
 // Mock data for therapy videos
-const therapyVideos = [
-  {
-    id: 1,
-    title: "5-Minute Breathing Exercise for Anxiety",
-    duration: "5:23",
-    category: "Anxiety",
-    thumbnail: "/placeholder.svg?height=200&width=300",
-    description: "Quick breathing techniques to calm your mind",
-  },
-  {
-    id: 2,
-    title: "Progressive Muscle Relaxation",
-    duration: "12:45",
-    category: "Sleep",
-    thumbnail: "/placeholder.svg?height=200&width=300",
-    description: "Full body relaxation for better sleep",
-  },
-  {
-    id: 3,
-    title: "Managing Academic Stress",
-    duration: "8:30",
-    category: "Anxiety",
-    thumbnail: "/placeholder.svg?height=200&width=300",
-    description: "Strategies for handling study pressure",
-  },
-  {
-    id: 4,
-    title: "Building Daily Motivation",
-    duration: "6:15",
-    category: "Motivation",
-    thumbnail: "/placeholder.svg?height=200&width=300",
-    description: "Start your day with positive energy",
-  },
-  {
-    id: 5,
-    title: "Mindful Study Techniques",
-    duration: "10:20",
-    category: "Motivation",
-    thumbnail: "/placeholder.svg?height=200&width=300",
-    description: "Focus better and retain more information",
-  },
-  {
-    id: 6,
-    title: "Evening Wind-Down Routine",
-    duration: "7:45",
-    category: "Sleep",
-    thumbnail: "/placeholder.svg?height=200&width=300",
-    description: "Prepare your mind and body for rest",
-  },
-];
 
 const categories = ["All", "Anxiety", "Sleep", "Motivation"];
 
@@ -96,6 +46,7 @@ export default function JournalPage() {
     content: string;
     mood: string;
   };
+  const [emoji, setEmoji] = useState("");
   const token = useAuthStore((state) => {
     return state.token;
   });
@@ -124,10 +75,7 @@ export default function JournalPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [isSaving, setIsSaving] = useState(false);
 
-  const filteredVideos =
-    selectedCategory === "All"
-      ? therapyVideos
-      : therapyVideos.filter((video) => video.category === selectedCategory);
+  
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -217,13 +165,23 @@ export default function JournalPage() {
                 <Button
                   onClick={async (event) => {
                     event.preventDefault();
+                    huggingfaceApi
+                      .post("/detect", {
+                        text: journalEntry,
+                      })
+                      .then((response) => {
+                        setEmoji(response.data.emoji);
+                      })
+                      .catch((error) => {
+                        console.log(error.response.data);
+                      });
                     toolsApi
                       .post(
                         "/journal",
                         {
                           preview: journalEntry.split(".")[0],
                           content: journalEntry,
-                          mood: "😊",
+                          mood: emoji,
                         },
                         {
                           headers: {
@@ -235,8 +193,7 @@ export default function JournalPage() {
                       .then(() => {
                         getJournalData();
                       })
-                      .catch((error) => {
-                      });
+                      .catch((error) => {});
                   }}
                   // disabled={!journalEntry.trim() || isSaving}
                   className={`w-full rounded-full py-3 font-semibold transition-all duration-300 ${

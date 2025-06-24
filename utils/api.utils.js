@@ -36,3 +36,7 @@ export const userApi = axios.create({
     baseURL: `${process.env.NEXT_PUBLIC_API_URL}/user`,
     timeout: 10000
 })
+export const huggingfaceApi = axios.create({
+    baseURL: `${process.env.NEXT_PUBLIC_API_URL}/huggingface`,
+    timeout: 10000
+})
