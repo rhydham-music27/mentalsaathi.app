@@ -10,7 +10,7 @@ import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 
 export default function PaymentPage() {
-  const [amount, setAmount] = useState("149");
+  const [amount, setAmount] = useState("100");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{
     type: "success" | "error" | null;
