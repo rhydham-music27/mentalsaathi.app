@@ -33,6 +33,7 @@ export default function page() {
   const setMail = useAuthStore((state) => {
     return state.setEmail;
   });
+  const [uploaded , setUploaded ] = useState(false)
   const router = useRouter();
   const [signupData, setSignupData] = useState({
     email: "",
@@ -247,6 +248,7 @@ export default function page() {
                                 profile_picture: response.data.file.url,
                               }));
                               toast.success("image uploaded succesfully");
+                              setUploaded(true)
                               // Optional: setUploadedUrl(response.data.file.url);
                             })
                             .catch((error) => {
@@ -287,8 +289,9 @@ export default function page() {
 
                   <Button
                     type="submit"
+                    
                     className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-full py-3 font-semibold"
-                    disabled={signupStatus === "success"}
+                    disabled={signupStatus === "success" || !uploaded}
                   >
                     {signupStatus === "success"
                       ? "Creating account..."
