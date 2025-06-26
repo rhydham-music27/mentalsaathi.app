@@ -27,15 +27,15 @@ export function Navbar() {
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/community", label: "Community" },
-    { href: "/chat-with-therapist", label: "Chat With Therapist" },
-    { href: "/journal", label: "Self Therapy" },
+
+    { href: "/journal", label: "Digital Journal" },
     { href: "/about", label: "About" },
   ];
   const mobilenavLinks = [
     { href: "/", label: "Home" },
     { href: "/community", label: "Community" },
-    { href: "/chat-with-therapist", label: "Chat With Therapist" },
-    { href: "/journal", label: "Self Therapy" },
+
+    { href: "/journal", label: "Digital Journal" },
     { href: "/about", label: "About" },
     { href: "/signup", label: "signup" },
     { href: "/login", label: "login" },
@@ -84,7 +84,11 @@ export function Navbar() {
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
             <div className="flex items-center gap-1">
-             <img src="/logo.png" className="w-10 h-10 invert bg-black" alt="" />
+              <img
+                src="/logo.png"
+                className="w-10 h-10 invert bg-black"
+                alt=""
+              />
             </div>
             <span className="text-xl font-bold text-gray-800">
               MentalSaathi

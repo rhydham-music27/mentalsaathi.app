@@ -96,7 +96,7 @@ export default function AboutPage() {
       {/* Mission & Vision */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-          <Card className="border-pink-100 shadow-lg bg-pink-50/50">
+          {/* <Card className="border-pink-100 shadow-lg bg-pink-50/50">
             <CardHeader>
               <CardTitle className="text-2xl text-gray-800 flex items-center gap-2">
                 <Target className="w-6 h-6 text-pink-500" />
@@ -116,9 +116,9 @@ export default function AboutPage() {
                 their journey.
               </p>
             </CardContent>
-          </Card>
+          </Card> */}
 
-          <Card className="border-purple-100 shadow-lg bg-purple-50/50">
+          {/* <Card className="border-purple-100 shadow-lg bg-purple-50/50">
             <CardHeader>
               <CardTitle className="text-2xl text-gray-800 flex items-center gap-2">
                 <Eye className="w-6 h-6 text-purple-500" />
@@ -137,10 +137,10 @@ export default function AboutPage() {
                 strive to make mental wellness a norm, not a privilege.
               </p>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
 
-        {/* Story Section */}
+        {/* Story Section
         <Card className="border-blue-100 shadow-lg mb-16 bg-blue-50/50">
           <CardHeader>
             <CardTitle className="text-2xl text-gray-800 flex items-center gap-2">
@@ -177,7 +177,7 @@ export default function AboutPage() {
               </p>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Founders Section */}
         <div className="mb-16">

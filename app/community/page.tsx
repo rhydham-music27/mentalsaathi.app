@@ -352,6 +352,22 @@ export default function CommunityPage() {
             )}
 
             {/* Active Topics */}
+               <Card className="border-yellow-100 shadow-lg bg-yellow-50/50">
+              <CardHeader>
+                <CardTitle className="text-gray-800 flex items-center gap-2">
+                  <Users className="w-5 h-5 text-yellow-600" />
+                  Community Guidelines
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-gray-700">
+                  <li>• Be kind and respectful to all community members</li>
+                  <li>• Keep discussions supportive and constructive</li>
+                  <li>• Respect anonymity and privacy</li>
+                  <li>• No judgment, only understanding and support</li>
+                </ul>
+              </CardContent>
+            </Card>
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-900">
@@ -507,22 +523,7 @@ export default function CommunityPage() {
             </div>
 
             {/* Community Guidelines */}
-            <Card className="border-yellow-100 shadow-lg bg-yellow-50/50">
-              <CardHeader>
-                <CardTitle className="text-gray-800 flex items-center gap-2">
-                  <Users className="w-5 h-5 text-yellow-600" />
-                  Community Guidelines
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-gray-700">
-                  <li>• Be kind and respectful to all community members</li>
-                  <li>• Keep discussions supportive and constructive</li>
-                  <li>• Respect anonymity and privacy</li>
-                  <li>• No judgment, only understanding and support</li>
-                </ul>
-              </CardContent>
-            </Card>
+         
           </div>
         </div>
       </div>

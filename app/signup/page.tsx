@@ -19,12 +19,21 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import useAuthStore from "@/store/auth.store";
+import { useRouter } from "next/navigation";
 
 export default function page() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [file, setFile] = useState<File | null>(null);
+  const setToken = useAuthStore((state) => {
+    return state.setToken;
+  });
+  const setMail = useAuthStore((state) => {
+    return state.setEmail;
+  });
+  const router = useRouter();
   const [signupData, setSignupData] = useState({
     email: "",
     name: "",
@@ -81,18 +90,38 @@ export default function page() {
                 <form
                   onSubmit={(event) => {
                     event.preventDefault();
-                    console.log("clocked")
+                    console.log("clicked");
+
                     authApi
                       .post("/signup", signupData, {
-                        headers: {
-                          "Content-type": "application/json",
-                        },
+                        headers: { "Content-type": "application/json" },
                       })
-                      .then((resposne) => {
-                        toast.success(resposne.data.message);
+                      .then((response) => {
+                        toast.success(response.data.message);
+
+                        return authApi.post(
+                          "/login",
+                          {
+                            email: signupData.email,
+                            password: signupData.password,
+                          },
+                          {
+                            headers: { "Content-Type": "application/json" },
+                          }
+                        );
+                      })
+                      .then((response) => {
+                        toast.success(response.data.message);
+                        setToken(response.data.token);
+                        setMail(response.data.email);
+                        router.push("/community");
                       })
                       .catch((error) => {
-                        toast.error(error.response.data.message);
+                        toast.error(
+                          error?.response?.data?.message ||
+                            "Something went wrong."
+                        );
+                        router.push("/signup");
                       });
                   }}
                   className="space-y-4"
@@ -217,7 +246,7 @@ export default function page() {
                                 ...prev,
                                 profile_picture: response.data.file.url,
                               }));
-                              toast.success("image uploaded succesfully")
+                              toast.success("image uploaded succesfully");
                               // Optional: setUploadedUrl(response.data.file.url);
                             })
                             .catch((error) => {
@@ -225,7 +254,9 @@ export default function page() {
                                 "Upload Error:",
                                 error.response?.data || error.message
                               );
-                              toast.error("somehtin unexpected happened, please try later")
+                              toast.error(
+                                "somehtin unexpected happened, please try later"
+                              );
                             });
                         }}
                         className="border-purple-200 focus:border-purple-300 pr-10"
@@ -268,10 +299,7 @@ export default function page() {
                     <div className="absolute inset-0 flex items-center">
                       <span className="w-full border-t border-gray-300" />
                     </div>
-             
                   </div>
-
-               
 
                   <div className="text-center text-xs text-gray-500">
                     By creating an account, you agree to our{" "}

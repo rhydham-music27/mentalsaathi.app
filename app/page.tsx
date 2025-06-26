@@ -28,27 +28,27 @@ const features = [
       "Share your thoughts and connect with peers in a safe, judgment-free environment.",
     color: "bg-purple-100 text-purple-600",
   },
-  {
-    icon: Calendar,
-    title: "Peer Listener Sessions",
-    description:
-      "Book one-on-one sessions with trained student listeners who understand your journey.",
-    color: "bg-blue-100 text-blue-600",
-  },
-  {
-    icon: BookOpen,
-    title: "Self-Help Library",
-    description:
-      "Access curated resources, articles, and tools for mental wellness and academic success.",
-    color: "bg-green-100 text-green-600",
-  },
-  {
-    icon: Smile,
-    title: "Mood Tracker & Journal",
-    description:
-      "Track your emotional journey and reflect through private journaling features.",
-    color: "bg-orange-100 text-orange-600",
-  },
+  // {
+  //   icon: Calendar,
+  //   title: "Peer Listener Sessions",
+  //   description:
+  //     "Book one-on-one sessions with trained student listeners who understand your journey.",
+  //   color: "bg-blue-100 text-blue-600",
+  // },
+  // {
+  //   icon: BookOpen,
+  //   title: "Self-Help Library",
+  //   description:
+  //     "Access curated resources, articles, and tools for mental wellness and academic success.",
+  //   color: "bg-green-100 text-green-600",
+  // },
+  // {
+  //   icon: Smile,
+  //   title: "Mood Tracker & Journal",
+  //   description:
+  //     "Track your emotional journey and reflect through private journaling features.",
+  //   color: "bg-orange-100 text-orange-600",
+  // },
 ];
 
 const testimonials = [
@@ -189,16 +189,8 @@ export default function HomePage() {
                   Join Community
                 </Button>
               </Link>
-              <Link href="/book-listener">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-2 border-purple-600 text-purple-600 hover:bg-purple-50 rounded-full px-8 py-3 text-lg font-semibold transform hover:scale-105 transition-all duration-200"
-                >
-                  Book a Session
-                </Button>
-              </Link>
             </div>
+     
 
             {/* Stats */}
             {/* <div className="grid grid-cols-3 gap-8 max-w-md mx-auto pt-8">
@@ -363,7 +355,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <Link href="/login">
+            <Link href="/signup">
               <Button
                 size="lg"
                 className="bg-white text-purple-600 hover:bg-gray-50 rounded-full px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
