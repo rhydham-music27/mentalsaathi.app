@@ -5,14 +5,14 @@ import { Footer } from "@/components/layout/footer";
 import { Heart, Target, Eye, Award } from "lucide-react";
 import { useEffect } from "react";
 import useAuthStore from "@/store/auth.store";
+import Head from "next/head";
 
 const founders = [
   {
     name: "Rhydham",
     role: "Founder & CEO",
-    bio: "I'm a Computer Science student at Chandigarh University, deeply passionate about using technology to transform the way we approach mental health care. I founded MentalSaathi with a vision to build a pioneering digital platform that breaks down stigma and makes mental wellness support accessible, relatable, and empowering—especially for students like me.Driven by empathy and innovation, I'm committed to creating a safe space where young minds can find guidance, community, and the support they need on their mental wellness journey."
+    bio: "I'm a Computer Science student at Chandigarh University, deeply passionate about using technology to transform the way we approach mental health care. I founded MentalSaathi with a vision to build a pioneering digital platform that breaks down stigma and makes mental wellness support accessible, relatable, and empowering—especially for students like me.Driven by empathy and innovation, I'm committed to creating a safe space where young minds can find guidance, community, and the support they need on their mental wellness journey.",
 
-,
     avatar: "🧠",
     university: "Mental Saathi",
   },
@@ -67,36 +67,51 @@ export default function AboutPage() {
     return () => clearInterval(interval);
   }, []);
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
-      <Navbar />
+    <>
+      <Head>
+        <title>About Mental Saathi – Our Mission for Student Wellness</title>
+        <meta
+          name="description"
+          content="Learn the story behind Mental Saathi, India’s student-led initiative for mental wellness and emotional support.
+"
+        />
+        <meta
+          name="keywords"
+          content="student-led initiative, mental health startup India, youth-driven wellness, mental health innovation, empowering students, mental health journey, social impact India, emotional support mission
+"
+        />
+        <meta name="robots" content="index, follow" />
+      </Head>
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
+        <Navbar />
 
-      {/* Hero Section */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute -top-40 -right-32 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="space-y-6">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900">
-              Our{" "}
-              <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                Story
-              </span>
-            </h1>
-            <p className="text-xl sm:text-2xl text-gray-600 max-w-3xl mx-auto">
-              Born from the belief that every student deserves accessible mental
-              health support.
-            </p>
+        {/* Hero Section */}
+        <section className="py-20 relative overflow-hidden">
+          <div className="absolute inset-0">
+            <div className="absolute -top-40 -right-32 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+            <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
           </div>
-        </div>
-      </section>
 
-      {/* Mission & Vision */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-          {/* <Card className="border-pink-100 shadow-lg bg-pink-50/50">
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="space-y-6">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900">
+                Our{" "}
+                <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                  Story
+                </span>
+              </h1>
+              <p className="text-xl sm:text-2xl text-gray-600 max-w-3xl mx-auto">
+                Born from the belief that every student deserves accessible
+                mental health support.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Mission & Vision */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+            {/* <Card className="border-pink-100 shadow-lg bg-pink-50/50">
             <CardHeader>
               <CardTitle className="text-2xl text-gray-800 flex items-center gap-2">
                 <Target className="w-6 h-6 text-pink-500" />
@@ -118,7 +133,7 @@ export default function AboutPage() {
             </CardContent>
           </Card> */}
 
-          {/* <Card className="border-purple-100 shadow-lg bg-purple-50/50">
+            {/* <Card className="border-purple-100 shadow-lg bg-purple-50/50">
             <CardHeader>
               <CardTitle className="text-2xl text-gray-800 flex items-center gap-2">
                 <Eye className="w-6 h-6 text-purple-500" />
@@ -138,9 +153,9 @@ export default function AboutPage() {
               </p>
             </CardContent>
           </Card> */}
-        </div>
+          </div>
 
-        {/* Story Section
+          {/* Story Section
         <Card className="border-blue-100 shadow-lg mb-16 bg-blue-50/50">
           <CardHeader>
             <CardTitle className="text-2xl text-gray-800 flex items-center gap-2">
@@ -179,48 +194,50 @@ export default function AboutPage() {
           </CardContent>
         </Card> */}
 
-        {/* Founders Section */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-8">
-            Meet Our Founders
-          </h2>
-          <div
-            className={`grid gap-8 ${
-              founders.length === 1
-                ? "grid-cols-1 place-items-center"
-                : "grid-cols-1 md:grid-cols-1"
-            }`}
-          >
-            {founders.map((founder, index) => (
-              <Card
-                key={index}
-                className="border-gray-100 max-w-[90vw] md:max-w-[40vw]  shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
-              >
-                <CardContent className="p-6 text-left">
-                  <img
-                    className="w-40 h-40 bg-gradient-to-r from-purple-200 to-pink-200 rounded-xl border-2 border-black border-spacing-2 text-3xl mb-4 text-right"
-                    src="./1.png"
-                    alt=""
-                  />
+          {/* Founders Section */}
+          <div className="mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 text-center mb-8">
+              Meet Our Founders
+            </h2>
+            <div
+              className={`grid gap-8 ${
+                founders.length === 1
+                  ? "grid-cols-1 place-items-center"
+                  : "grid-cols-1 md:grid-cols-1"
+              }`}
+            >
+              {founders.map((founder, index) => (
+                <Card
+                  key={index}
+                  className="border-gray-100 max-w-[90vw] md:max-w-[40vw]  shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
+                >
+                  <CardContent className="p-6 text-left">
+                    <img
+                      className="w-40 h-40 bg-gradient-to-r from-purple-200 to-pink-200 rounded-xl border-2 border-black border-spacing-2 text-3xl mb-4 text-right"
+                      src="./1.png"
+                      alt=""
+                    />
 
-                  <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                    {founder.name}
-                  </h3>
-                  <p className="text-purple-600 font-medium mb-2">
-                    {founder.role}
-                  </p>
-                  <p className="text-sm text-gray-500 mb-3">
-                    {founder.university}
-                  </p>
-                  <p className="text-gray-600 leading-relaxed">{founder.bio}</p>
-                </CardContent>
-              </Card>
-            ))}
+                    <h3 className="text-xl font-semibold text-gray-900 mb-1">
+                      {founder.name}
+                    </h3>
+                    <p className="text-purple-600 font-medium mb-2">
+                      {founder.role}
+                    </p>
+                    <p className="text-sm text-gray-500 mb-3">
+                      {founder.university}
+                    </p>
+                    <p className="text-gray-600 leading-relaxed">
+                      {founder.bio}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Milestones */}
-        {/* <div className="mb-16">
+          {/* Milestones */}
+          {/* <div className="mb-16">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-8">Our Journey</h2>
           <div className="space-y-6">
             {milestones.map((milestone, index) => (
@@ -241,8 +258,8 @@ export default function AboutPage() {
           </div>
         </div> */}
 
-        {/* Impact Stats */}
-        {/* <Card className="border-green-100 shadow-lg bg-green-50/50">
+          {/* Impact Stats */}
+          {/* <Card className="border-green-100 shadow-lg bg-green-50/50">
           <CardHeader>
             <CardTitle className="text-2xl text-gray-800 text-center flex items-center justify-center gap-2">
               <Award className="w-6 h-6 text-green-500" />
@@ -276,9 +293,10 @@ export default function AboutPage() {
             </div>
           </CardContent>
         </Card> */}
-      </div>
+        </div>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </>
   );
 }
