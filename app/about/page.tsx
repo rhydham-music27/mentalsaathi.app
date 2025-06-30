@@ -10,10 +10,18 @@ import Head from "next/head";
 const founders = [
   {
     name: "Rhydham",
-    role: "Founder & CEO",
+    role: "Founder & Builder-in-Chief",
     bio: "I'm a Computer Science student at Chandigarh University, deeply passionate about using technology to transform the way we approach mental health care. I founded MentalSaathi with a vision to build a pioneering digital platform that breaks down stigma and makes mental wellness support accessible, relatable, and empowering—especially for students like me.Driven by empathy and innovation, I'm committed to creating a safe space where young minds can find guidance, community, and the support they need on their mental wellness journey.",
 
-    avatar: "🧠",
+    avatar: "/1.png",
+    university: "Mental Saathi",
+  },
+  {
+    name: "Pavni Bhatia",
+    role: "Co-Founder & Head of Mobile Engineering",
+    bio: " I lead the design and development of intuitive, secure, and scalable mobile experiences that support mental wellness across India. With a strong foundation in computer science and a deep commitment to mental health innovation, I spearhead the technical architecture and champion a user-first approach behind the Mental Saathi app. Blending technology with empathy, I strive to ensure that every line of code I write helps build a more compassionate and connected world..",
+
+    avatar: "/2.png",
     university: "Mental Saathi",
   },
 ];
@@ -203,18 +211,18 @@ export default function AboutPage() {
               className={`grid gap-8 ${
                 founders.length === 1
                   ? "grid-cols-1 place-items-center"
-                  : "grid-cols-1 md:grid-cols-1"
+                  : "grid-cols-1 md:grid-cols-2"
               }`}
             >
               {founders.map((founder, index) => (
                 <Card
                   key={index}
-                  className="border-gray-100 max-w-[90vw] md:max-w-[40vw]  shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
+                  className="border-gray-100 max-w-[90vw]  md:max-w-[40vw]  shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
                 >
                   <CardContent className="p-6 text-left">
                     <img
                       className="w-40 h-40 bg-gradient-to-r from-purple-200 to-pink-200 rounded-xl border-2 border-black border-spacing-2 text-3xl mb-4 text-right"
-                      src="./1.png"
+                      src={founder.avatar}
                       alt=""
                     />
 
