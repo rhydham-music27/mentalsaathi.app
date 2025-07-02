@@ -1,7 +1,7 @@
 "use client";
 import TherapistChatUI from "@/components/ui/TherapistChatUI";
 import useTherapistAuthStore from "@/store/therapist.store";
-import { streamApi, therapistApi, userApi } from "@/utils/api.utils";
+import { therapistApi, userApi } from "@/utils/api.utils";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -14,7 +14,7 @@ export default function page() {
   });
   type User = {
     _id: string;
-    profile_picture: string;
+    profile_picture: string | null;
     name: string;
   };
   const [authorization, setAuthorization] = useState(false);
@@ -27,92 +27,54 @@ export default function page() {
   });
   const [userData, setUserData] = useState<User>({
     _id: "",
-    profile_picture: "",
+    profile_picture: null,
     name: "",
   });
   const [token1, setToken] = useState("");
   const therapistId = query.get("t");
+
   useEffect(() => {
-    therapistApi
-      .post(
-        "/verify",
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+    userApi
+      .get(`/verify/${userId.id}`)
       .then((response) => {
-        const therapist = response.data.data;
-
-        if (therapist._id !== therapistId) {
-          toast.error("Access denied. Therapist mismatch.");
-          return router.push("/therapist/login");
-        }
-
-        // ✅ Step 1: Set therapist
-        setAuthorization(true);
-        setTherapistData(therapist);
-
-        // ✅ Step 2: Get stream token
-        streamApi
-          .post(
-            "/therapist/token",
-            { userId: therapist._id },
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          )
-          .then((res) => {
-            const streamToken = res.data.token;
-            setToken(streamToken);
-            console.log("✅ Stream Token:", streamToken);
-
-            // ✅ Step 3: Get user data only after token is ready
-            userApi
-              .get(`/verify/${userId.id}`)
-              .then((res2) => {
-                setUserData(res2.data.data);
-
-                // ✅ Final log once everything is ready
-                console.log("🔁 All ready:", {
-                  therapistId: therapist._id,
-                  userId: res2.data.data._id,
-                  token: streamToken,
-                });
-              })
-              .catch((err) => {
-                console.error(
-                  "User fetch error:",
-                  err.response?.data || err.message
-                );
-              });
-          })
-          .catch((err) => {
-            console.error("Token error:", err.response?.data || err.message);
-          });
+        // console.log(response.data.data);
+        setUserData({
+          _id: response.data.data._id,
+          name: response.data.data.name,
+          profile_picture: response.data.data.profile_picture,
+        });
       })
       .catch((error) => {
-        console.log(
-          "Therapist verify error:",
-          error.response?.data || error.message
-        );
-        toast.error("Please login via therapist page to proceed further");
-        router.push("/therapist/login");
+        console.log(error.response.data);
+        return;
+      });
+    therapistApi
+      .get(`/${therapistId} `)
+      .then((response) => {
+        // console.log(response.data);
+        setTherapistData({
+          _id: response.data._id,
+          name: response.data.name,
+          profile_picture: response.data.profile_picture,
+        });
+      })
+      .catch((error) => {
+        console.log(error.response.data);
       });
   }, []);
 
   return (
     <div>
+      
       <TherapistChatUI
-        therapistId={therapistData._id}
-        token={token1}
-        userId={userData._id}
-        userImage={userData.profile_picture}
-        userName={userData.name}
+        userData={{
+          ...userData,
+          profile_picture: userData.profile_picture ?? "/default.png", // fallback
+        }}
+        therapistData={{
+          ...therapistData,
+          profile_picture: therapistData.profile_picture ?? "/default.png", // fallback
+        }}
       />
     </div>
   );

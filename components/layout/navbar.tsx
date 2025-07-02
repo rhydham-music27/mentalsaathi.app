@@ -27,6 +27,7 @@ export function Navbar() {
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/community", label: "Community" },
+    { href: "/chat-with-therapist", label: "SaathiChat" },
 
     { href: "/journal", label: "Digital Journal" },
     { href: "/about", label: "About" },
@@ -34,6 +35,7 @@ export function Navbar() {
   const mobilenavLinks = [
     { href: "/", label: "Home" },
     { href: "/community", label: "Community" },
+    { href: "/chat-with-therapist", label: "SaathiChat" },
 
     { href: "/journal", label: "Digital Journal" },
     { href: "/about", label: "About" },

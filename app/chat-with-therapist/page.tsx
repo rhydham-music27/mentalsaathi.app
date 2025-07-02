@@ -165,58 +165,58 @@ export default function Component() {
                   <Button
                     onClick={(event) => {
                       event.preventDefault();
-                      router.push('/payment')
-                      //                       therapistApi
-                      //                         .get(`/${therapist._id}`)
-                      //                         .then((response) => {
-                      //                           localStorage.setItem(
-                      //                             "therapist",
-                      //                             JSON.stringify({
-                      //                               _id: response.data._id,
-                      //                               email: response.data.email,
-                      //                               name: response.data.name,
-                      //                               profile_picture: response.data.profile_picture,
-                      //                             })
-                      //                           );
-                      //                           setTherapist((previous) => ({
-                      //                             ...previous,
-                      //                             _id: response.data._id,
-                      //                             email: response.data.email,
-                      //                             name: response.data.name,
-                      //                             profile_picture: response.data.profile_picture,
-                      //                           }));
-                      //                           router.push(
-                      //                             `/chat/${me._id}u?t=${response.data._id}`
-                      //                           );
-                      //                           // console.log(`/chat/${me._id}u?t=${getTherapist._id}`)
-                      //                           // console.log(getTherapist._id)
-                      //                         })
-                      //                         .catch((error) => {
-                      //                           console.log(error.response.data);
-                      //                         });
-                      //                       emailApi
-                      //                         .post("/message", {
-                      //                           to: therapist.email,
-                      //                           subject: "🧠 New Chat Request on MentalSaathi",
-                      //                           text: `Hi ${therapist.name},
+                      // router.push('/payment')
+                      therapistApi
+                        .get(`/${therapist._id}`)
+                        .then((response) => {
+                          localStorage.setItem(
+                            "therapist",
+                            JSON.stringify({
+                              _id: response.data._id,
+                              email: response.data.email,
+                              name: response.data.name,
+                              profile_picture: response.data.profile_picture,
+                            })
+                          );
+                          setTherapist((previous) => ({
+                            ...previous,
+                            _id: response.data._id,
+                            email: response.data.email,
+                            name: response.data.name,
+                            profile_picture: response.data.profile_picture,
+                          }));
+                          router.push(
+                            `/chat/${me._id}?t=${response.data._id}`
+                          );
+                          // console.log(`/chat/${me._id}u?t=${getTherapist._id}`)
+                          // console.log(getTherapist._id)
+                        })
+                        .catch((error) => {
+                          console.log(error.response.data);
+                        });
+                      emailApi
+                        .post("/message", {
+                          to: therapist.email,
+                          subject: "🧠 New Chat Request on MentalSaathi",
+                          text: `Hi ${therapist.name},
 
-                      // ${me.name} has initiated a chat with you on MentalSaathi.
+                      ${me.name} has initiated a chat with you on MentalSaathi.
 
-                      // Please click the link below to join the conversation:
-                      // https://mentalsaathi.in/therapist/${me._id}?t=${therapist._id}
+                      Please click the link below to join the conversation:
+                      https://mentalsaathi.in/therapist/${me._id}?t=${therapist._id}
 
-                      // Warm regards,
-                      // Team MentalSaathi
-                      // https://mentalsaathi.in
+                      Warm regards,
+                      Team MentalSaathi
+                      https://mentalsaathi.in
 
-                      // ---
+                      ---
 
-                      // You're receiving this email because you're registered as a therapist on MentalSaathi.
-                      // `,
-                      //                         })
-                      //                         .then((response) => {
-                      //                           console.log(response.data);
-                      //                         });
+                      You're receiving this email because you're registered as a therapist on MentalSaathi.
+                      `,
+                        })
+                        .then((response) => {
+                          console.log(response.data);
+                        });
                     }}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-xl transition-colors duration-200"
                     size="lg"

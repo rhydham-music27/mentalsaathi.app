@@ -1,157 +1,206 @@
-"use client";
+import { profile } from "console";
+import { Socket, io } from "socket.io-client";
+import React, { useEffect, useRef, useState } from "react";
+import { Divide } from "lucide-react";
+type TherapistData = {
+  name: string;
+  _id: string;
+  profile_picture: string;
+};
+type UserData = {
+  name: string;
+  _id: string;
+  profile_picture: string;
+};
+type TherapistChatUIProps = {
+  therapistData: TherapistData;
+  userData: UserData;
+};
+function formatTime(timestamp: string | Date) {
+  return new Date(timestamp).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
-import { useEffect, useState } from "react";
-import {
-  Chat,
-  Channel,
-  ChannelHeader,
-  MessageInput,
-  MessageList,
-  Window,
-} from "stream-chat-react";
-import "stream-chat-react/dist/css/v2/index.css";
-import { StreamChat } from "stream-chat";
-import type { Channel as StreamChannel } from "stream-chat";
-
-const TherapistChatUI = ({
-  therapistId,
-  token,
-  userId,
-  userName,
-  userImage,
-}: {
-  therapistId: string;
-  token: string;
-  userId: string;
-  userName: string;
-  userImage: string;
-}) => {
-  const [client, setClient] = useState<StreamChat | null>(null);
-  const [channel, setChannel] = useState<StreamChannel | null>(null);
-
-  // Mark as read
+export default function TherapistChatUI({
+  therapistData,
+  userData,
+}: TherapistChatUIProps) {
+  type Messagedata = {
+    message?: string;
+    sentbyyou?: boolean;
+    timestamp?: Date;
+  };
+  const [messagearray, setMessagearray] = useState<Messagedata[]>([]);
+  const [messagedata, setMessagedata] = useState<Messagedata>({ message: "" });
+  const [room_id, setRoom_id] = useState("");
+  const socket = useRef<Socket | null>(null);
   useEffect(() => {
-    if (!channel) return;
-
-    const mark = async () => {
-      try {
-        await channel.markRead();
-      } catch (err) {
-        console.log("📭 Manual markRead failed:", err.message);
-      }
-    };
-
-    mark();
-  }, [channel]);
-
-  // Connect therapist
-  useEffect(() => {
-    if (!therapistId || !token || !userId) return;
-
-    const setup = async () => {
-      const existingClient = StreamChat.getInstance(
-        process.env.NEXT_PUBLIC_STREAM_API_KEY!
-      );
-
-      const channelId = [userId, therapistId].sort().join("__");
-
-      if (existingClient?.userID === therapistId) {
-        console.log("✅ Already connected:", therapistId);
-        setClient(existingClient);
-
-        const chatChannel = existingClient.channel("messaging", channelId);
-
-        try {
-          await chatChannel.addMembers([therapistId, userId]);
-        } catch (err) {
-          console.warn(
-            "⚠️ addMembers warning (probably already a member):",
-            err.message
-          );
-        }
-
-        await chatChannel.watch();
-        setChannel(chatChannel);
-        return;
-      }
-
-      try {
-        await existingClient.connectUser(
-          {
-            id: therapistId,
-            name: "Therapist",
-          },
-          token
-        );
-
-        const chatChannel = existingClient.channel("messaging", channelId); // 🚫 No member update
-
-        try {
-          await chatChannel.watch(); // ✅ Only reads, no permission issues
-          setClient(existingClient);
-          setChannel(chatChannel);
-        } catch (err) {
-          console.error("❌ Error watching channel:", err.message);
-        }
-
-        await chatChannel.watch();
-
-        setClient(existingClient);
-        setChannel(chatChannel);
-      } catch (err) {
-        console.error("❌ Error connecting to Stream Chat:", err);
-      }
-    };
-
-    setup();
-
+    console.log(process.env.NEXT_PUBLIC_SOCKET_URL)
+    socket.current = io(process.env.NEXT_PUBLIC_SOCKET_URL);
+    console.log(socket.current.id);
+    if (!userData?._id || !therapistData?._id) return;
+    const room_id = `${userData._id}_${therapistData._id}`;
+    setRoom_id(room_id);
+    socket.current.emit("join", { room: room_id });
+    socket.current.on("message", (item: any) => {
+      setMessagearray((previous) => [...previous, item]);
+    });
     return () => {
-      if (client) {
-        client.disconnectUser();
-        setClient(null);
-        setChannel(null);
-      }
+      socket.current?.disconnect();
     };
-  }, [therapistId, token, userId]);
+  }, [userData._id, therapistData._id, messagearray]);
 
-  const [hasMounted, setHasMounted] = useState(false);
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  if (!hasMounted || !client || !channel) return <p>Loading chat...</p>;
-
+  // <aside className="w-full md:w-1/4 bg-white border-r border-gray-200 h-1/3 md:h-full flex-shrink-0">
+  //   <div className="p-4 border-b">
+  //     <h2 className="text-xl font-bold">SaathiChat</h2>
+  //     <p className="text-sm text-gray-500">Conversations</p>
+  //   </div>
+  //   <div className="overflow-y-auto h-full">
+  //     <ul className="divide-y">
+  //       <li className="p-4 hover:bg-gray-50 cursor-pointer">
+  //         <div className="flex items-center space-x-3">
+  //           <img src="/avatar1.png" className="w-10 h-10 rounded-full" />
+  //           <div className="flex-1">
+  //             <p className="font-medium">Therapist A</p>
+  //             <p className="text-xs text-gray-500 truncate">
+  //               How are you feeling today?
+  //             </p>
+  //           </div>
+  //         </div>
+  //       </li>
+  //       <li className="p-4 hover:bg-gray-50 cursor-pointer">
+  //         <div className="flex items-center space-x-3">
+  //           <img src="/avatar1.png" className="w-10 h-10 rounded-full" />
+  //           <div className="flex-1">
+  //             <p className="font-medium">Therapist A</p>
+  //             <p className="text-xs text-gray-500 truncate">
+  //               How are you feeling today?
+  //             </p>
+  //           </div>
+  //         </div>
+  //       </li>
+  //       <li className="p-4 hover:bg-gray-50 cursor-pointer">
+  //         <div className="flex items-center space-x-3">
+  //           <img src="/avatar1.png" className="w-10 h-10 rounded-full" />
+  //           <div className="flex-1">
+  //             <p className="font-medium">Therapist A</p>
+  //             <p className="text-xs text-gray-500 truncate">
+  //               How are you feeling today?
+  //             </p>
+  //           </div>
+  //         </div>
+  //       </li>
+  //       <li className="p-4 hover:bg-gray-50 cursor-pointer">
+  //         <div className="flex items-center space-x-3">
+  //           <img src="/avatar1.png" className="w-10 h-10 rounded-full" />
+  //           <div className="flex-1">
+  //             <p className="font-medium">Therapist A</p>
+  //             <p className="text-xs text-gray-500 truncate">
+  //               How are you feeling today?
+  //             </p>
+  //           </div>
+  //         </div>
+  //       </li>
+  //       <li className="p-4 hover:bg-gray-50 cursor-pointer">
+  //         <div className="flex items-center space-x-3">
+  //           <img src="/avatar1.png" className="w-10 h-10 rounded-full" />
+  //           <div className="flex-1">
+  //             <p className="font-medium">Therapist A</p>
+  //             <p className="text-xs text-gray-500 truncate">
+  //               How are you feeling today?
+  //             </p>
+  //           </div>
+  //         </div>
+  //       </li>
+  //       {/* More contacts... */}
+  //     </ul>
+  //   </div>
+  // </aside>
   return (
-    <div className="flex flex-col h-[90vh] max-w-2xl mx-auto rounded-xl border shadow-md overflow-hidden bg-white">
-      <Chat client={client} theme="messaging light">
-        <Channel channel={channel}>
-          <Window>
-            {/* Header */}
-            <div className="flex items-center gap-3 p-3 border-b shadow-sm bg-white">
-              <img
-                src={userImage}
-                alt="User Profile"
-                className="w-10 h-10 rounded-full object-cover"
-              />
-              <div className="text-lg font-semibold text-gray-800">
-                {userName ?? "User"}
+    <div className="h-screen flex flex-col md:flex-row bg-gray-100 text-gray-800">
+      {/* Sidebar */}
+
+      {/* Chat Window */}
+      <main className="flex-1 flex flex-col h-2/3 md:h-full">
+        {/* Header */}
+        <div className="p-4 border-b bg-white flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <img
+              src={userData.profile_picture || "/placeholder.png"}
+              className="w-10 h-10 rounded-full"
+            />
+            <div>
+              <h3 className="font-semibold">{userData.name}</h3>
+              {/* <p className="text-xs text-green-500">Online</p> */}
+            </div>
+          </div>
+        </div>
+        {/* Chat Messages */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+          {messagearray.map((item, index) => {
+            return (
+              <div key={`${item.message}_${messagearray.length}_${index}`}>
+                {/*  */}
+                <div
+                  className={`flex ${
+                    item.sentbyyou ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  <div
+                    className={`p-3 rounded-lg shadow max-w-xs text-sm ${
+                      item.sentbyyou
+                        ? "bg-blue-500 text-white"
+                        : "bg-white text-gray-900"
+                    }`}
+                  >
+                    <p>{item.message}</p>
+                    <span className="block text-xs text-gray-400 mt-1 text-right">
+                      {formatTime(item.timestamp ?? new Date())}
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
-
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto">
-              <MessageList />
-            </div>
-
-            {/* Input */}
-            <div className="border-t p-3 bg-white">
-              <MessageInput />
-            </div>
-          </Window>
-        </Channel>
-      </Chat>
+            );
+          })}
+          {/* More messages... */}
+        </div>
+        {/* Input Box */}
+        <div className="p-4 bg-white border-t">
+          <form className="flex items-center space-x-3">
+            <input
+              value={messagedata.message}
+              onChange={(event) => {
+                event.preventDefault();
+                setMessagedata({
+                  message: event.target.value,
+                  sentbyyou: true,
+                  timestamp: new Date(),
+                });
+              }}
+              type="text"
+              placeholder="Type your message..."
+              className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring focus:border-blue-500"
+            />
+            <button
+              onClick={(event) => {
+                event.preventDefault();
+                setMessagearray((previous) => [...previous, messagedata]);
+                socket.current?.emit("message", {
+                  room: room_id,
+                  message: messagedata.message,
+                });
+                setMessagedata({ message: "" });
+              }}
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-sm"
+            >
+              Send
+            </button>
+          </form>
+        </div>
+      </main>
     </div>
   );
-};
-
-export default TherapistChatUI;
+}
