@@ -119,88 +119,93 @@ export default function ChatUI({
   //   </div>
   // </aside>
   return (
-    <div className="h-screen flex flex-col md:flex-row bg-gray-100 text-gray-800">
-      {/* Sidebar */}
+   <div className="h-screen flex flex-col md:flex-row bg-gray-100 text-gray-800">
+  {/* Sidebar */}
+  {/* Add sidebar here if needed */}
 
-      {/* Chat Window */}
-      <main className="flex-1 flex flex-col h-2/3 md:h-full">
-        {/* Header */}
-        <div className="p-4 border-b bg-white flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <img
-              src={therapistData.profile_picture || "/placeholder.png"}
-              className="w-10 h-10 rounded-full"
-            />
-            <div>
-              <h3 className="font-semibold">{therapistData.name}</h3>
-              {/* <p className="text-xs text-green-500">Online</p> */}
+  {/* Chat Window */}
+  <main className="flex flex-col flex-1 min-h-0">
+    {/* Header */}
+    <div className="p-4 border-b bg-white flex items-center justify-between">
+      <div className="flex items-center space-x-3">
+        <img
+          src={therapistData.profile_picture || "/placeholder.png"}
+          className="w-10 h-10 rounded-full"
+          alt="Therapist"
+        />
+        <div>
+          <h3 className="font-semibold">{therapistData.name}</h3>
+          {/* <p className="text-xs text-green-500">Online</p> */}
+        </div>
+      </div>
+    </div>
+
+    {/* Chat Messages */}
+    <div
+      id="chat-scroll"
+      className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50"
+    >
+      {messagearray.map((item, index) => (
+        <div key={`${item.message}_${messagearray.length}_${index}`}>
+          <div
+            className={`flex ${
+              item.sentbyyou ? "justify-end" : "justify-start"
+            }`}
+          >
+            <div
+              className={`p-3 rounded-lg shadow max-w-xs text-sm ${
+                item.sentbyyou
+                  ? "bg-blue-500 text-white"
+                  : "bg-white text-gray-900"
+              }`}
+            >
+              <p>{item.message}</p>
+              <span className="block text-xs text-gray-400 mt-1 text-right">
+                {formatTime(item.timestamp ?? new Date())}
+              </span>
             </div>
           </div>
         </div>
-        {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-          {messagearray.map((item, index) => {
-            return (
-              <div key={`${item.message}_${messagearray.length}_${index}`}>
-                {/*  */}
-                <div
-                  className={`flex ${
-                    item.sentbyyou ? "justify-end" : "justify-start"
-                  }`}
-                >
-                  <div
-                    className={`p-3 rounded-lg shadow max-w-xs text-sm ${
-                      item.sentbyyou
-                        ? "bg-blue-500 text-white"
-                        : "bg-white text-gray-900"
-                    }`}
-                  >
-                    <p>{item.message}</p>
-                    <span className="block text-xs text-gray-400 mt-1 text-right">
-                      {formatTime(item.timestamp ?? new Date())}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-          {/* More messages... */}
-        </div>
-        {/* Input Box */}
-        <div className="p-4 bg-white border-t">
-          <form className="flex items-center space-x-3">
-            <input
-              value={messagedata.message}
-              onChange={(event) => {
-                event.preventDefault();
-                setMessagedata({
-                  message: event.target.value,
-                  sentbyyou: true,
-                  timestamp: new Date(),
-                });
-              }}
-              type="text"
-              placeholder="Type your message..."
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring focus:border-blue-500"
-            />
-            <button
-              onClick={(event) => {
-                event.preventDefault();
-                setMessagearray((previous) => [...previous, messagedata]);
-                socket.current?.emit("message", {
-                  room: room_id,
-                  message: messagedata.message,
-                });
-                setMessagedata({ message: "" });
-              }}
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-sm"
-            >
-              Send
-            </button>
-          </form>
-        </div>
-      </main>
+      ))}
     </div>
+
+    {/* Input Box (Sticky at Bottom) */}
+    <div className="p-4 bg-white border-t">
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          setMessagearray((previous) => [...previous, messagedata]);
+          socket.current?.emit("message", {
+            room: room_id,
+            message: messagedata.message,
+          });
+          setMessagedata({ message: "" });
+        }}
+        className="flex items-center space-x-3"
+      >
+        <input
+          value={messagedata.message}
+          onChange={(event) => {
+            setMessagedata({
+              message: event.target.value,
+              sentbyyou: true,
+              timestamp: new Date(),
+            });
+          }}
+          type="text"
+          placeholder="Type your message..."
+          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring focus:border-blue-500"
+        />
+        <button
+          type="submit"
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-sm"
+        >
+          Send
+        </button>
+      </form>
+    </div>
+  </main>
+</div>
+
   );
 }
