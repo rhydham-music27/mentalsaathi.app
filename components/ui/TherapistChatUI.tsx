@@ -1,7 +1,7 @@
-import { profile } from "console";
 import { Socket, io } from "socket.io-client";
 import React, { useEffect, useRef, useState } from "react";
-import { Divide } from "lucide-react";
+import { playNotificationSound, unlockAudio } from "@/utils/audio.utils";
+
 type TherapistData = {
   name: string;
   _id: string;
@@ -16,6 +16,7 @@ type TherapistChatUIProps = {
   therapistData: TherapistData;
   userData: UserData;
 };
+
 function formatTime(timestamp: string | Date) {
   return new Date(timestamp).toLocaleTimeString([], {
     hour: "2-digit",
@@ -27,105 +28,86 @@ export default function TherapistChatUI({
   therapistData,
   userData,
 }: TherapistChatUIProps) {
-  type Messagedata = {
+  type MessageData = {
     message?: string;
     sentbyyou?: boolean;
     timestamp?: Date;
   };
-  const [messagearray, setMessagearray] = useState<Messagedata[]>([]);
-  const [messagedata, setMessagedata] = useState<Messagedata>({ message: "" });
-  const [room_id, setRoom_id] = useState("");
+
+  const [messageArray, setMessageArray] = useState<MessageData[]>([]);
+  const [messageData, setMessageData] = useState<MessageData>({ message: "" });
+  const [roomId, setRoomId] = useState("");
+  const [typing, setTyping] = useState(false);
+  const [isUserTyping, setIsUserTyping] = useState(false);
   const socket = useRef<Socket | null>(null);
+  const typingTimeout = useRef<NodeJS.Timeout | null>(null);
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
-    console.log(process.env.NEXT_PUBLIC_SOCKET_URL);
+    const handleUnlock = () => unlockAudio();
+    document.addEventListener("click", handleUnlock, { once: true });
+
+    return () => {
+      document.removeEventListener("click", handleUnlock);
+    };
+  }, []);
+
+  useEffect(() => {
     socket.current = io(process.env.NEXT_PUBLIC_SOCKET_URL);
-    console.log(socket.current.id);
     if (!userData?._id || !therapistData?._id) return;
-    const room_id = `${userData._id}_${therapistData._id}`;
-    setRoom_id(room_id);
-    socket.current.emit("join", { room: room_id });
+
+    const id = `${userData._id}_${therapistData._id}`;
+    setRoomId(id);
+    socket.current.emit("join", { room: id });
+
     socket.current.on("message", (item: any) => {
-      setMessagearray((previous) => [...previous, item]);
+      setMessageArray((prev) => [...prev, item]);
+      playNotificationSound();
     });
+
+    socket.current.on("typing", () => setIsUserTyping(true));
+    socket.current.on("stopTyping", () => setIsUserTyping(false));
+
     return () => {
       socket.current?.disconnect();
     };
-  }, [userData._id, therapistData._id, messagearray]);
+  }, [userData._id, therapistData._id]);
 
-  // <aside className="w-full md:w-1/4 bg-white border-r border-gray-200 h-1/3 md:h-full flex-shrink-0">
-  //   <div className="p-4 border-b">
-  //     <h2 className="text-xl font-bold">SaathiChat</h2>
-  //     <p className="text-sm text-gray-500">Conversations</p>
-  //   </div>
-  //   <div className="overflow-y-auto h-full">
-  //     <ul className="divide-y">
-  //       <li className="p-4 hover:bg-gray-50 cursor-pointer">
-  //         <div className="flex items-center space-x-3">
-  //           <img src="/avatar1.png" className="w-10 h-10 rounded-full" />
-  //           <div className="flex-1">
-  //             <p className="font-medium">Therapist A</p>
-  //             <p className="text-xs text-gray-500 truncate">
-  //               How are you feeling today?
-  //             </p>
-  //           </div>
-  //         </div>
-  //       </li>
-  //       <li className="p-4 hover:bg-gray-50 cursor-pointer">
-  //         <div className="flex items-center space-x-3">
-  //           <img src="/avatar1.png" className="w-10 h-10 rounded-full" />
-  //           <div className="flex-1">
-  //             <p className="font-medium">Therapist A</p>
-  //             <p className="text-xs text-gray-500 truncate">
-  //               How are you feeling today?
-  //             </p>
-  //           </div>
-  //         </div>
-  //       </li>
-  //       <li className="p-4 hover:bg-gray-50 cursor-pointer">
-  //         <div className="flex items-center space-x-3">
-  //           <img src="/avatar1.png" className="w-10 h-10 rounded-full" />
-  //           <div className="flex-1">
-  //             <p className="font-medium">Therapist A</p>
-  //             <p className="text-xs text-gray-500 truncate">
-  //               How are you feeling today?
-  //             </p>
-  //           </div>
-  //         </div>
-  //       </li>
-  //       <li className="p-4 hover:bg-gray-50 cursor-pointer">
-  //         <div className="flex items-center space-x-3">
-  //           <img src="/avatar1.png" className="w-10 h-10 rounded-full" />
-  //           <div className="flex-1">
-  //             <p className="font-medium">Therapist A</p>
-  //             <p className="text-xs text-gray-500 truncate">
-  //               How are you feeling today?
-  //             </p>
-  //           </div>
-  //         </div>
-  //       </li>
-  //       <li className="p-4 hover:bg-gray-50 cursor-pointer">
-  //         <div className="flex items-center space-x-3">
-  //           <img src="/avatar1.png" className="w-10 h-10 rounded-full" />
-  //           <div className="flex-1">
-  //             <p className="font-medium">Therapist A</p>
-  //             <p className="text-xs text-gray-500 truncate">
-  //               How are you feeling today?
-  //             </p>
-  //           </div>
-  //         </div>
-  //       </li>
-  //       {/* More contacts... */}
-  //     </ul>
-  //   </div>
-  // </aside>
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messageArray]);
+
+  const handleTyping = (value: string) => {
+    setMessageData({ message: value, sentbyyou: true, timestamp: new Date() });
+
+    if (!typing) {
+      setTyping(true);
+      socket.current?.emit("typing", { room: roomId });
+    }
+
+    if (typingTimeout.current) clearTimeout(typingTimeout.current);
+
+    typingTimeout.current = setTimeout(() => {
+      socket.current?.emit("stopTyping", { room: roomId });
+      setTyping(false);
+    }, 3000);
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!messageData.message?.trim()) return;
+    setMessageArray((prev) => [...prev, messageData]);
+    socket.current?.emit("message", {
+      room: roomId,
+      message: messageData.message,
+    });
+    socket.current?.emit("stopTyping", { room: roomId });
+    setMessageData({ message: "" });
+    setTyping(false);
+  };
+
   return (
     <div className="h-screen flex flex-col md:flex-row bg-gray-100 text-gray-800">
-      {/* Sidebar */}
-      {/* You can place your sidebar here */}
-
-      {/* Chat Window */}
       <main className="flex flex-col flex-1 min-h-0">
-        {/* Header */}
         <div className="p-4 border-b bg-white flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <img
@@ -134,68 +116,58 @@ export default function TherapistChatUI({
               alt="User"
             />
             <div>
-              <h3 className="font-semibold">{userData.name}</h3>
-              {/* <p className="text-xs text-green-500">Online</p> */}
+              <h3 className="font-semibold text-lg">{userData.name}</h3>
+              {isUserTyping && (
+                <p className="text-xs text-blue-500 animate-pulse">Typing...</p>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Chat Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-          {messagearray.map((item, index) => (
-            <div key={`${item.message}_${messagearray.length}_${index}`}>
+          {messageArray.map((item, index) => (
+            <div
+              key={`${item.message}_${messageArray.length}_${index}`}
+              className={`flex items-end ${
+                item.sentbyyou ? "justify-end" : "justify-start"
+              }`}
+            >
+              {!item.sentbyyou && (
+                <img
+                  src={userData.profile_picture || "/placeholder.png"}
+                  className="w-8 h-8 rounded-full mr-2"
+                  alt="User Avatar"
+                />
+              )}
               <div
-                className={`flex ${
-                  item.sentbyyou ? "justify-end" : "justify-start"
+                className={`p-3 rounded-xl max-w-xs text-sm shadow-md ${
+                  item.sentbyyou
+                    ? "bg-blue-500 text-white"
+                    : "bg-white text-gray-800"
                 }`}
               >
-                <div
-                  className={`p-3 rounded-lg shadow max-w-xs text-sm ${
-                    item.sentbyyou
-                      ? "bg-blue-500 text-white"
-                      : "bg-white text-gray-900"
-                  }`}
-                >
-                  <p>{item.message}</p>
-                  <span className="block text-xs text-gray-400 mt-1 text-right">
-                    {formatTime(item.timestamp ?? new Date())}
-                  </span>
+                <p>{item.message}</p>
+                <div className="text-xs text-right text-gray-400 mt-1">
+                  {formatTime(item.timestamp ?? new Date())}
                 </div>
               </div>
             </div>
           ))}
+          <div ref={chatEndRef} />
         </div>
 
-        {/* Input Box */}
         <div className="p-4 bg-white border-t">
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              setMessagearray((previous) => [...previous, messagedata]);
-              socket.current?.emit("message", {
-                room: room_id,
-                message: messagedata.message,
-              });
-              setMessagedata({ message: "" });
-            }}
-            className="flex items-center space-x-3"
-          >
+          <form onSubmit={handleSubmit} className="flex items-center space-x-3">
             <input
-              value={messagedata.message}
-              onChange={(event) => {
-                setMessagedata({
-                  message: event.target.value,
-                  sentbyyou: true,
-                  timestamp: new Date(),
-                });
-              }}
+              value={messageData.message || ""}
+              onChange={(e) => handleTyping(e.target.value)}
               type="text"
               placeholder="Type your message..."
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring focus:border-blue-500"
+              className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring focus:border-blue-500"
             />
             <button
               type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-sm"
+              className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 text-sm"
             >
               Send
             </button>
