@@ -40,3 +40,7 @@ export const huggingfaceApi = axios.create({
     baseURL: `${process.env.NEXT_PUBLIC_API_URL}/huggingface`,
     timeout: 10000
 })
+export const messageApi = axios.create({
+    baseURL: `${process.env.NEXT_PUBLIC_API_URL}/message`,
+    timeout: 10000
+})

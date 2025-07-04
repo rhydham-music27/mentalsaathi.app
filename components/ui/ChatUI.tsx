@@ -1,6 +1,7 @@
 import { Socket, io } from "socket.io-client";
 import React, { useEffect, useRef, useState } from "react";
 import { playNotificationSound, unlockAudio } from "@/utils/audio.utils";
+import TenMinuteTimer from "./TenMinuteTimer";
 
 type TherapistData = {
   name: string;
@@ -108,17 +109,28 @@ export default function ChatUI({
     <div className="h-screen flex flex-col md:flex-row bg-gray-100 text-gray-800">
       <main className="flex flex-col flex-1 min-h-0">
         <div className="p-4 border-b bg-white flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <img
-              src={therapistData.profile_picture || "/placeholder.png"}
-              className="w-10 h-10 rounded-full"
-              alt="Therapist"
-            />
+          <div className="flex items-center space-x-3 justify-between w-full">
+            <div className="flex space-x-3 items-center">
+              <img
+                src={therapistData.profile_picture || "/placeholder.png"}
+                className="w-10 h-10 rounded-full"
+                alt="Therapist"
+              />
+              <div>
+                <h3 className="font-semibold text-lg">{therapistData.name}</h3>
+                {isTherapistTyping && (
+                  <p className="text-xs text-blue-500 animate-pulse">
+                    Typing...
+                  </p>
+                )}
+              </div>
+            </div>
             <div>
-              <h3 className="font-semibold text-lg">{therapistData.name}</h3>
-              {isTherapistTyping && (
-                <p className="text-xs text-blue-500 animate-pulse">Typing...</p>
-              )}
+              <TenMinuteTimer
+                onTimeUp={() => {
+                  alert("your session is over");
+                }}
+              />
             </div>
           </div>
         </div>
